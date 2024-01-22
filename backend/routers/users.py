@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from backend.schemas.user import UserCreate, UserPublic, User, UserList, UserUpdate
+from backend.schemas import Message, UserCreate, UserPublic, User, UserList, UserUpdate
 
 router = APIRouter(
     prefix="/users",
@@ -24,7 +24,7 @@ def create_user(user: UserCreate):
     return user_with_id
 
 
-@router.put('/users/{user_id}', response_model=UserPublic)
+@router.put('/{user_id}', response_model=UserPublic)
 def update_user(user_id: int, user: UserUpdate):
     if user_id > len(database) or user_id < 1:
         raise HTTPException(status_code=404, detail='User not found')
@@ -33,3 +33,13 @@ def update_user(user_id: int, user: UserUpdate):
     database[user_id - 1] = user_with_id
 
     return user_with_id
+
+
+@router.delete('/{user_id}', response_model=Message)
+def delete_user(user_id: int):
+    if user_id > len(database) or user_id < 1:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    del database[user_id - 1]
+
+    return {'detail': 'User deleted'}

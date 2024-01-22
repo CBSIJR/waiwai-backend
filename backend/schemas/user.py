@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from .base import Base
 
 
 class UserPublic(BaseModel):
@@ -13,8 +14,8 @@ class UserCreate(BaseModel):
     password: str
 
 
-class User(UserCreate):
-    id: int
+class User(Base, UserCreate):
+    pass
 
 
 class UserUpdate(UserCreate):
