@@ -1,1 +1,1 @@
-from .config import Production, Development
+from .config import Settings
