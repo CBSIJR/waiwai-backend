@@ -33,9 +33,8 @@ class Settings(BaseSettings):
     log_level: LogLevel = Field(alias='LOG_LEVEL', default=LogLevel.INFO)
     reload: bool = Field(alias='RELOAD', default=False)
     workers: int = Field(alias='WORKERS', default=1)
-    pg_url: PostgresDsn = Field(alias='DB_URL')
-    pg_user: str = Field(alias='DB_USER')
-    pg_password: str = Field(alias='DB_PASSWORD')
+    # https://github.com/pydantic/pydantic/issues/8061
+    db_url: PostgresDsn = Field(alias='DB_URL')
     model_config = SettingsConfigDict(
         env_file=('.env.prod', '.env.dev', '.env'),
         env_file_encoding='utf-8')
