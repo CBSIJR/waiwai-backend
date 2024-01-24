@@ -1,9 +1,6 @@
 # WaiWaiTapota API 2.0
 TODO: Add description
 
-## API Documentation
-TODO: Add documentation
-
 ### Requisitos 
 - [Python 3.11.x](https://www.python.org/)
 - [Poetry 1.7.x](https://python-poetry.org/)
@@ -47,14 +44,15 @@ WORKERS=1
 LOG_LEVEL=info
 
 [database]
-DB_URL=postgres://postgres@localhost:5432/kwargs_db
-DB_USER=postgres
-DB_PASSWORD=postgres
+DB_URL=postgresql://<user>:<password>@<host>/<database>
 ```
 ### Iniciando 
 Parar iniciar o projeto, basta executar o seguinte comando no seu terminal:
 ```shell
 $ poetry run app
+```
+Saída de execução:
+```sheel
 INFO:     Will watch for changes in these directories: ['/path/to/waiwai-backend/backend']
 INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
 INFO:     Started reloader process [9999] using StatReload
@@ -63,6 +61,8 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 ```
 
+## API Documentation
+TODO: Add documentation
 
 ### API Endpoints
 TODO: Add endpoints
