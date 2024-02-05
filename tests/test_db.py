@@ -4,10 +4,16 @@ from backend.models import User
 
 
 def test_create_user(session):
-    new_user = User(username='alice', password='secret', email='teste@test')
+    first_name = 'Augusto'
+    last_name = 'Junior'
+    name = first_name + ' ' + last_name
+    email = first_name.lower() + '@email.com'
+    password = '<PASSWORD>'
+
+    new_user = User(first_name=first_name, last_name=last_name, name=name, email=email, password=password)
     session.add(new_user)
     session.commit()
 
-    user = session.scalar(select(User).where(User.username == 'alice'))
+    user = session.scalar(select(User).where(User.first_name == 'Augusto'))
 
-    assert user.username == 'alice'
+    assert user.username == 'Augusto'

@@ -15,7 +15,7 @@ class Category(Base):
     __tablename__ = 'categories'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    category: Mapped[str] = mapped_column(String(20))
+    category: Mapped[str] = mapped_column(String(20), unique=True)
     description: Mapped[str] = mapped_column(String(255))
 
     words: Mapped[List[Word]] = relationship(

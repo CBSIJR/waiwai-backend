@@ -20,7 +20,7 @@ class Attachment(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    path: Mapped[str] = mapped_column(String(255))
+    path: Mapped[str] = mapped_column(String(255), unique=True)
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now())
     update_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now(),
                                                           onupdate=func.now())

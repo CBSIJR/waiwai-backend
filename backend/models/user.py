@@ -18,7 +18,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(15))
     last_name: Mapped[str] = mapped_column(String(15))
     name: Mapped[str] = mapped_column(String(31))
-    email: Mapped[str] = mapped_column(String(319))
+    email: Mapped[str] = mapped_column(String(319), unique=True)
     password: Mapped[str] = mapped_column(String(128))  # TODO: definir tamanho baseado na encriptação
     permission: Mapped[Optional[PermissionType]] = mapped_column(default=PermissionType.GUEST)
 
