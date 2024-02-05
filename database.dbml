@@ -1,0 +1,139 @@
+Project DBML {
+  Note: '''
+    # WaiWaiTapota Schema Database
+    Database structure.
+
+    ## Development
+    TODO
+
+    Reference: https://dbml.dbdiagram.io/docs/
+  '''
+}
+
+enum permissions {
+    admin [note: 'admin:  administrador']
+    user [note: 'user:   consegue criar novas palavras']
+    guest [note: 'guest:  aguarda aprovação das palavras']
+}
+
+// Usuários do sistema
+Table users {
+  id int [pk]
+  first_name varchar(15) [not null,
+    note: '''
+# Formatações
+- Primeira letra maíscula
+# Validações
+- Não pode conter menos que 3 e mais que 15
+- Somente letras
+- Não pode conter espaço
+'''
+      ]
+  last_name varchar(15) [not null,
+    note: '''
+# Formatações
+- Primeira letra maíscula
+# Validações
+- Não pode conter menos que 3 e mais que 15
+- Somente letras
+- Não pode conter espaço
+''']
+  name varchar(31) [not null,
+    note: '''
+# Formatações
+- first_name + ' ' + last_name
+''']
+  email varchar(319) [not null,
+    note: '''
+# Validações
+- Email válido
+''']
+  password varchar(128) [not null,
+    note: '''
+# Validações
+- Não pode conter menos que 8 e mais que 32
+- Permitido somente letras, números e alguns caracteres especiais
+- TODO: Caso criado por administrador, solicitar nova senha
+''']
+  permission permissions [default: 'guest', note:'''
+    admin
+    user
+    guest
+  ''']
+}
+
+
+
+// Palavras do dicionário
+Table words {
+  id int [pk]
+  word varchar(255) [not null]
+  created_at "timestamp default CURRENT_TIMESTAMP" [not null, note:'create time']
+  updated_at "timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" [not null, note:'update time']
+  user_id int [not null]
+  category_id int [not null]
+}
+
+
+// Anexos da palavra (Palavra < Anexos)
+Table attachments {
+  id int [pk]
+  uuid uuid [not null]
+  path varchar(255) [not null]
+  created_at "timestamp default CURRENT_TIMESTAMP" [not null, note:'create time']
+  updated_at "timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" [not null, note:'update time']
+  word_id int [not null]
+}
+
+
+// Significado da palavra (Palavra < Significado)
+Table meanings {
+  id int [pk]
+  meaning varchar(50) [not null]
+  phonemic varchar(80) [not null]
+  comment varchar(255) [not null]
+  chapter_id int
+  entry_id int
+  created_at "timestamp default CURRENT_TIMESTAMP" [not null, note:'create time']
+  updated_at "timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" [not null, note:'update time']
+  word_id int [not null]
+  reference_id int [not null]
+}
+
+// Categorias das palavras (Palavra < Categoria)
+Table categories {
+  id int [pk]
+  category varchar(20) [not null]
+  description varchar(255) [not null]
+}
+
+// Referencias das palavras (Significado > Referencia)
+Table references {
+  id int [pk]
+  reference varchar(80) [not null]
+  url varchar(2048)
+}
+
+// Job para referenciar a última versão
+
+Table version {
+  id int [pk]
+  version decimal [not null]
+  words int [not null]
+  meanings int [not null]
+  categories int [not null]
+  references int [not null]
+}
+
+
+// Tabelas modelo de versão
+
+Ref: words.user_id > users.id
+
+Ref: meanings.word_id > words.id
+
+Ref: words.id <> categories.id // Muitos para muitos
+
+Ref: references.id < meanings.reference_id
+
+Ref: words.id < attachments.word_id
