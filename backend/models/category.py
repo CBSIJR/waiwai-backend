@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from .word import Word
 else:
@@ -18,6 +18,6 @@ class Category(Base):
     category: Mapped[str] = mapped_column(String(20), unique=True)
     description: Mapped[str] = mapped_column(String(255))
 
-    words: Mapped[List[Word]] = relationship(
+    words: Mapped[Optional[List[Word]]] = relationship(
         secondary=WordCategory, back_populates="categories"
     )

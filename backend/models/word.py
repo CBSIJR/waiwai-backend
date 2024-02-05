@@ -31,10 +31,10 @@ class Word(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped[User] = relationship(back_populates="words")
 
-    attachments: Mapped[List[Attachment]] = relationship(back_populates="attachment", cascade="delete, all")
+    attachments: Mapped[Optional[List[Attachment]]] = relationship(back_populates="word", cascade="delete, all")
 
-    meanings: Mapped[List[Meaning]] = relationship(back_populates="word", cascade="delete, all")
+    meanings: Mapped[Optional[List[Meaning]]] = relationship(back_populates="word", cascade="delete, all")
 
-    categories: Mapped[List[Category]] = relationship(
+    categories: Mapped[Optional[List[Category]]] = relationship(
         secondary=WordCategory, back_populates="words"
     )

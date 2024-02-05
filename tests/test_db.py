@@ -16,4 +16,4 @@ def test_create_user(session):
 
     user = session.scalar(select(User).where(User.first_name == 'Augusto'))
 
-    assert user.username == 'Augusto'
+    assert user.first_name == 'Augusto'

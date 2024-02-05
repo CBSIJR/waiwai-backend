@@ -22,4 +22,4 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(128))  # TODO: definir tamanho baseado na encriptação
     permission: Mapped[Optional[PermissionType]] = mapped_column(default=PermissionType.GUEST)
 
-    words: Mapped[List[Word]] = relationship(back_populates="word", cascade="delete, all")
+    words: Mapped[Optional[List[Word]]] = relationship(back_populates="user", cascade="delete, all")

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from .meaning import Meaning
 else:
@@ -18,4 +18,4 @@ class Reference(Base):
     reference: Mapped[str] = mapped_column(String(80), unique=True)
     url: Mapped[str] = mapped_column(String(2048), unique=True)
 
-    meanings: Mapped[List[Meaning]] = relationship(back_populates="reference")
+    meanings: Mapped[Optional[List[Meaning]]] = relationship(back_populates="reference")

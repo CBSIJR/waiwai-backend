@@ -24,5 +24,6 @@ class Attachment(Base):
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now())
     update_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), server_default=func.now(),
                                                           onupdate=func.now())
+
     word_id: Mapped[int] = mapped_column(ForeignKey("words.id"))
-    word: Mapped[Word] = relationship(back_populates="attachments")
+    word: Mapped[Optional[Word]] = relationship(back_populates="attachments")
