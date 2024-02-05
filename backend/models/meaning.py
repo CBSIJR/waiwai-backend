@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from .word import Word
-    from .word import Word
     from .reference import Reference
 else:
     Word = "Word"
