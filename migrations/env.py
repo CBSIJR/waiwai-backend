@@ -12,7 +12,7 @@ config.set_main_option('sqlalchemy.url', str(Settings().db_url))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
+# https://gist.github.com/h4/fc9b6d350544ff66491308b535762fee
 """
 Load models metadata. We should define schema in this class firstly, 
 or set schema implicit with `__table_args__ = {'schema' : 'test'}` in model class
@@ -21,10 +21,8 @@ target_metadata = Base.metadata
 
 
 def include_name(name, type_, parent_names):
-    # https://alembic.sqlalchemy.org/en/latest/autogenerate.html#omitting-schema-names-from-the-autogenerate-process
     if type_ == "schema":
-        # this **will* include the default schema
-        return name in [None, "schema_one", "schema_two"]
+        return name == target_metadata.schema
     else:
         return True
 
