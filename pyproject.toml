@@ -6,7 +6,7 @@ authors = ["aejunior <user.emerson@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-development = "backend.waiwai:start"
+development = "backend.app:start"
 app = "backend.app:start"
 
 [tool.poetry.dependencies]
@@ -19,6 +19,9 @@ pydantic-settings = "^2.1.0"
 sqlalchemy = "^2.0.25"
 alembic = "^1.13.1"
 psycopg2 = "^2.9.9"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
