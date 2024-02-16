@@ -12,12 +12,11 @@ logging.basicConfig(
     format="[%(asctime)s] %(levelname)s %(name)s - %(message)s",
     handlers=[logging.StreamHandler()],
 )
+logging.getLogger('passlib').setLevel(logging.ERROR)
 
 
 def get_logger(logger_name="uvicorn.error") -> logging.Logger:
     return logging.getLogger(logger_name)
-
-
 
 
 def create_access_token(subject: Union[str, Any], settings: BaseSettings, expires_delta: int = None) -> str:

@@ -1,14 +1,21 @@
 import time
 
 from jose import jwt
-from jose.jwt import ExpiredSignatureError, JWTError
+from jose.jwt import JWTError
 
+from fastapi import HTTPException, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials
 
-from backend.configs import Settings
-from backend.schemas import Token
+from backend.configs import Settings, get_session
+from backend.models import User
+from backend.schemas import Token, TokenData, UserAuth
 from backend.utils import create_refresh_token, create_access_token
 
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from passlib.context import CryptContext
+from backend.auth import auth_handler
 
 
 settings = Settings()
@@ -43,4 +50,28 @@ def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 
+async def get_current_user(
+    session: Session = Depends(get_session),
+    credentials: HTTPAuthorizationCredentials = Depends(auth_handler.security)
+) -> UserAuth:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail='Não foi possível validar credenciais.',
+        headers={'WWW-Authenticate': 'Bearer'},
+    )
+    try:
+        sub = decode_jwt_sub(credentials.credentials)
+        if not sub:
+            raise credentials_exception
+        token_data = TokenData(subject=sub)
+    except JWTError:
+        raise credentials_exception
 
+    user: User = session.scalar(
+            select(User).where(User.email == token_data.subject)
+        )
+    # logger.debug(user.permission)
+    if user is None:
+        raise credentials_exception
+
+    return UserAuth(id=user.id, email=user.email, permission=user.permission)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, SecretStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from .base import Base, PermissionType
 
 
@@ -15,7 +15,6 @@ class UserCreate(BaseModel):
     last_name: str = Field(min_length=3, max_length=15)
     email: EmailStr
     password: str = Field(min_items=8, max_length=32)
-    # permission: Optional[PermissionType] = PermissionType.GUEST
 
     @field_validator('password', mode='before')
     def password_must_be_strong(cls, v: str):

@@ -1,6 +1,6 @@
-from pydantic import EmailStr, Field
-from typing import Optional
-from .base import Base, BaseModel, PermissionType
+from .base import Base, BaseModel
+
+from pydantic import Field
 from datetime import datetime
 
 

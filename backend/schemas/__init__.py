@@ -4,4 +4,3 @@ from .token import Token, TokenData
 
 from .user import UserCreate, UserPublic, User, UserUpdate, UserLogin, UserAuth
 from .word import WordCreate, WordPublic, Word, WordUpdate
-

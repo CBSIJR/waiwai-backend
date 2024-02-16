@@ -9,5 +9,3 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     subject: str | None = None
-
-
