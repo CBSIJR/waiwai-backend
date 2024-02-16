@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-from backend.routers import users
+from backend.routers import auth, words
 
 
-app = FastAPI()
+app = FastAPI(redoc_url=None)
 
-app.include_router(users)
+app.include_router(auth)
+app.include_router(words)
 
 
 @app.get("/", tags=["Health"])
