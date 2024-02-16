@@ -7,9 +7,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class PermissionType(enum.Enum):
-    GUEST = "guest"
-    USER = "user"
-    ADMIN = "admin"
+    GUEST = "GUEST"
+    USER = "USER"
+    ADMIN = "ADMIN"
 
 
 class Base(DeclarativeBase):
