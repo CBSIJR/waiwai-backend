@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     workers: int = Field(alias='WORKERS', default=1)
     # https://github.com/pydantic/pydantic/issues/8061
     db_url: PostgresDsn = Field(alias='DB_URL')
+    jwt_secret_key_access_token: str = Field(alias='JWT_SECRET_KEY_ACCESS_TOKEN')
+    jwt_secret_key_refresh_token: str = Field(alias='JWT_SECRET_KEY_REFRESH_TOKEN')
+    jwt_expiration_access_token: int = Field(alias='JWT_EXPIRATION_ACCESS_TOKEN', default=30) # 30 minutos
+    jwt_expiration_refresh_token: int = Field(alias='JWT_EXPIRATION_REFRESH_TOKEN', default=60 * 24 * 7) # 7 dias
+    jwt_algorithm: str = Field(alias='JWT_ALGORITHM', default='HS256')
     model_config = SettingsConfigDict(
         env_file=('.env.prod', '.env.dev', '.env'),
         env_file_encoding='utf-8')
