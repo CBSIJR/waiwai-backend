@@ -28,22 +28,29 @@ Baseado no arquivo de configuração de exemplo (`.env.sample`) você deverá cr
 Veja um exemplo abaixo:
 ```shell
 [environment]
-ENVIRONMENT=dev
+ENVIRONMENT=dev                 # dev or prod
 
 [socket-binding]
-HOST=0.0.0.0
-PORT=8000
+HOST=0.0.0.0                    # Default: '127.0.0.1'
+PORT=8080                       # Default: 8000
 
 [development]
 RELOAD=1
 
 [production]
-WORKERS=1
+WORKERS=1                       # Default 1 for development
+JWT_ALGORITHM=                  # Default: HS256
+JWT_SECRET_KEY_ACCESS_TOKEN=    # https://randomkeygen.com/
+JWT_SECRET_KEY_REFRESH_TOKEN=   # https://randomkeygen.com/
+JWT_EXPIRATION_ACCESS_TOKEN=    # Default: 30
+JWT_EXPIRATION_REFRESH_TOKEN=   # Default: 10080
+
 
 [logging]
+# LOG_CONFIG=                   # TODO
+# NO_ACCESS_LOG=                # TODO
 LOG_LEVEL=info
 
-[database]
 DB_URL=postgresql://<user>:<password>@<host>/<database>
 ```
 ### Iniciando 
