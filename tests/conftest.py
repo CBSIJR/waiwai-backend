@@ -5,8 +5,21 @@ from fastapi.testclient import TestClient
 from backend.waiwai import app
 from backend.models import Base
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+
+
+class SADeListener(object):
+    def __init__(self, class_, event_, callable_):
+        self.class_ = class_
+        self.event = event_
+        self.callable_ = callable_
+
+    def __enter__(self):
+        event.remove(self.class_, self.event, self.callable_)
+
+    def __exit__(self, type_, value, tb):
+        event.listen(self.class_, self.event, self.callable_)
 
 
 @pytest.fixture
