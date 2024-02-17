@@ -46,7 +46,7 @@ class Words(Repository):
         word = result.scalar_one_or_none()
         if not word:
             raise HTTPException(
-                status_code=400, detail='Not found'
+                status_code=400, detail='Não encontrado.'
             )
         return word
 
@@ -62,7 +62,7 @@ class Words(Repository):
         word_db = await self.get_by_word(entity.word)
         if word_db:
             raise HTTPException(
-                status_code=400, detail='Word already registered'
+                status_code=400, detail='Palavra já registrada.'
             )
 
         word_db = Word(

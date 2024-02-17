@@ -2,7 +2,7 @@ from typing import Sequence
 
 from fastapi import HTTPException, status
 
-from sqlalchemy import select, Row
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import User
@@ -27,7 +27,7 @@ class Users(Repository):
 
         if user_db:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail='Email already registered'
+                status_code=status.HTTP_400_BAD_REQUEST, detail='Email já registrado.'
             )
 
         hashed_password = get_password_hash(entity.password)
@@ -61,13 +61,13 @@ class Users(Repository):
         user_db = await self.get_by_id(entity_id)
         if user_db:
             raise HTTPException(
-                status_code=400, detail='Not found'
+                status_code=400, detail='Não encontrado.'
             )
 
         user_db = self.get_by_email(entity.email)
         if user_db:
             raise HTTPException(
-                status_code=400, detail='Username already registered'
+                status_code=400, detail='Email já registrado.'
             )
 
         user_db = User(
@@ -90,12 +90,12 @@ class Users(Repository):
         user_db = await self.get_by_email(entity.email)
         if not user_db:
             raise HTTPException(
-                status_code=400, detail='Incorrect email or password'
+                status_code=400, detail='Email ou senha incorreto.'
             )
 
         if not verify_password(entity.password, user_db.password):
             raise HTTPException(
-                status_code=400, detail='Incorrect email or password'
+                status_code=400, detail='Email ou senha incorreto.'
             )
 
         return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))
