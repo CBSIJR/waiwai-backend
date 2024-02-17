@@ -41,7 +41,7 @@ async def get_word(
     '/',
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(security)],
-    responses={'409': {'model': Message}},
+    responses={'403': {'model': Message}, '409': {'model': Message}},
 )
 async def create_word(
     word: WordCreate,
