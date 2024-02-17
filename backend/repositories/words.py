@@ -1,12 +1,11 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-
-from sqlalchemy import select, Row
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.repositories import Repository
 from backend.models import Word
+from backend.repositories import Repository
 from backend.schemas import Params, UserAuth, WordCreate
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
@@ -18,7 +17,11 @@ class Words(Repository):
         self.session: AsyncSession = session
 
     async def get_list(self, params: Params) -> Sequence[Word]:
-        statement = select(Word).offset((params.page - 1) * params.page_size).limit(params.page_size)
+        statement = (
+            select(Word)
+            .offset((params.page - 1) * params.page_size)
+            .limit(params.page_size)
+        )
         result = await self.session.execute(statement)
         words = result.scalars().all()
         return words
@@ -28,13 +31,11 @@ class Words(Repository):
 
         if word_db:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail='Palavra já registrada.'
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Palavra já registrada.',
             )
 
-        word_db = Word(
-            word=entity.word,
-            user_id=user.id
-        )
+        word_db = Word(word=entity.word, user_id=user.id)
 
         self.session.add(word_db)
         await self.session.commit()
@@ -46,7 +47,7 @@ class Words(Repository):
         word = result.scalar_one_or_none()
         if not word:
             raise HTTPException(
-                status_code=400, detail='Não encontrado.'
+                status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
             )
         return word
 
@@ -56,18 +57,19 @@ class Words(Repository):
         word = result.scalar_one_or_none()
         return word
 
-    async def update_by_id(self, entity_id: int, entity: Word, user: UserAuth) -> None:
+    async def update_by_id(
+        self, entity_id: int, entity: Word, user: UserAuth
+    ) -> None:
         await self.get_by_id(entity_id)
 
         word_db = await self.get_by_word(entity.word)
         if word_db:
             raise HTTPException(
-                status_code=400, detail='Palavra já registrada.'
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Palavra já registrada.',
             )
 
-        word_db = Word(
-            word=entity.word
-        )
+        word_db = Word(word=entity.word)
 
         self.session.add(word_db)
         await self.session.commit()

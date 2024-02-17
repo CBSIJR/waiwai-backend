@@ -1,7 +1,8 @@
-from .base import Base, BaseModel
+from datetime import datetime
 
 from pydantic import Field
-from datetime import datetime
+
+from .base import Base, BaseModel
 
 
 class WordPublic(Base):

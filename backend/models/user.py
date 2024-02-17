@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, List, Optional
+
 if TYPE_CHECKING:
     from .word import Word
 else:
-    Word = "Word"
+    Word = 'Word'
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -19,7 +21,13 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(15))
     full_name: Mapped[str] = mapped_column(String(31))
     email: Mapped[str] = mapped_column(String(319), unique=True)
-    password: Mapped[str] = mapped_column(String(128))  # TODO: definir tamanho baseado na encriptação
-    permission: Mapped[Optional[PermissionType]] = mapped_column(default=PermissionType.GUEST)
+    password: Mapped[str] = mapped_column(
+        String(128)
+    )  # TODO: definir tamanho baseado na encriptação
+    permission: Mapped[Optional[PermissionType]] = mapped_column(
+        default=PermissionType.GUEST
+    )
 
-    words: Mapped[Optional[List[Word]]] = relationship(back_populates="user", cascade="delete, all")
+    words: Mapped[Optional[List[Word]]] = relationship(
+        back_populates='user', cascade='delete, all'
+    )

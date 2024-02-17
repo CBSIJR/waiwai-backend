@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
 from fastapi import Query
+from pydantic import BaseModel, Field
 
 
 # https://github.com/tiangolo/fastapi/discussions/10454#discussioncomment-7316522

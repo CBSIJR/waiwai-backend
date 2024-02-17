@@ -1,6 +1,7 @@
-from abc import abstractmethod, ABCMeta
-from sqlalchemy.orm import DeclarativeBase
+from abc import ABCMeta, abstractmethod
 from typing import List
+
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Repository(metaclass=ABCMeta):

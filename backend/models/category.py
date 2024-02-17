@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, List, Optional
+
 if TYPE_CHECKING:
     from .word import Word
 else:
-    Word = "Word"
+    Word = 'Word'
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -19,5 +21,5 @@ class Category(Base):
     description: Mapped[str] = mapped_column(String(255))
 
     words: Mapped[Optional[List[Word]]] = relationship(
-        secondary=WordCategory, back_populates="categories"
+        secondary=WordCategory, back_populates='categories'
     )

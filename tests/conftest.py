@@ -1,12 +1,10 @@
 import pytest
-
 from fastapi.testclient import TestClient
-
-from backend.waiwai import app
-from backend.models import Base
-
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+
+from backend.models import Base
+from backend.waiwai import app
 
 
 class SADeListener(object):

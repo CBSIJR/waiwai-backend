@@ -1,14 +1,13 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.auth import get_password_hash, sign_jwt, verify_password
 from backend.models import User
 from backend.repositories import Repository
-from backend.schemas import Params, UserCreate, UserLogin, Token, Subject
-from backend.auth import get_password_hash, verify_password, sign_jwt
+from backend.schemas import Params, Subject, Token, UserCreate, UserLogin
 
 
 class Users(Repository):
@@ -17,7 +16,11 @@ class Users(Repository):
         self.session: AsyncSession = session
 
     async def get_list(self, params: Params) -> Sequence[User]:
-        statement = select(User).offset((params.page - 1) * params.page_size).limit(params.page_size)
+        statement = (
+            select(User)
+            .offset((params.page - 1) * params.page_size)
+            .limit(params.page_size)
+        )
         result = await self.session.execute(statement)
         users = result.scalars().all()
         return users
@@ -27,7 +30,8 @@ class Users(Repository):
 
         if user_db:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail='Email já registrado.'
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Email já registrado.',
             )
 
         hashed_password = get_password_hash(entity.password)
@@ -37,7 +41,7 @@ class Users(Repository):
             last_name=entity.last_name,
             full_name=entity.first_name + ' ' + entity.last_name,
             email=entity.email,
-            password=hashed_password
+            password=hashed_password,
         )
 
         self.session.add(user_db)
@@ -57,17 +61,20 @@ class Users(Repository):
         user = result.scalar_one_or_none()
         return user
 
-    async def update_by_id(self, entity_id: int, entity: User, user: User) -> None:
+    async def update_by_id(
+        self, entity_id: int, entity: User, user: User
+    ) -> None:
         user_db = await self.get_by_id(entity_id)
         if user_db:
             raise HTTPException(
-                status_code=400, detail='Não encontrado.'
+                status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
             )
 
         user_db = self.get_by_email(entity.email)
         if user_db:
             raise HTTPException(
-                status_code=400, detail='Email já registrado.'
+                status_code=status.HTTP_409_CONFLICT,
+                detail='Email já registrado.',
             )
 
         user_db = User(
@@ -76,7 +83,7 @@ class Users(Repository):
             full_name=entity.full_name,
             email=entity.email,
             password=entity.password,
-            permission=entity.permission
+            permission=entity.permission,
         )
 
         self.session.add(user_db)
@@ -90,12 +97,14 @@ class Users(Repository):
         user_db = await self.get_by_email(entity.email)
         if not user_db:
             raise HTTPException(
-                status_code=400, detail='Email ou senha incorreto.'
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Email ou senha incorreto.',
             )
 
         if not verify_password(entity.password, user_db.password):
             raise HTTPException(
-                status_code=400, detail='Email ou senha incorreto.'
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Email ou senha incorreto.',
             )
 
         return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))

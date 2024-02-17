@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
 from .base import Base, PermissionType
 
 
@@ -18,9 +19,15 @@ class UserCreate(BaseModel):
 
     @field_validator('password', mode='before')
     def password_must_be_strong(cls, v: str):
-        assert any(char.isdigit() for char in v), "Deve conter pelo menos um dígito."
-        assert any(char.isupper() for char in v), "Deve conter pelo menos uma letra minúscula."
-        assert any(char.islower() for char in v), "Deve conter pelo menos uma letra maiúscula."
+        assert any(
+            char.isdigit() for char in v
+        ), 'Deve conter pelo menos um dígito.'
+        assert any(
+            char.isupper() for char in v
+        ), 'Deve conter pelo menos uma letra minúscula.'
+        assert any(
+            char.islower() for char in v
+        ), 'Deve conter pelo menos uma letra maiúscula.'
         return v
 
     @field_validator('first_name', 'last_name')

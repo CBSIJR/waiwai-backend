@@ -10,7 +10,13 @@ def test_create_user(session):
     email = first_name.lower() + '@email.com'
     password = '<PASSWORD>'
 
-    new_user = User(first_name=first_name, last_name=last_name, full_name=full_name, email=email, password=password)
+    new_user = User(
+        first_name=first_name,
+        last_name=last_name,
+        full_name=full_name,
+        email=email,
+        password=password,
+    )
     session.add(new_user)
     session.commit()
 
