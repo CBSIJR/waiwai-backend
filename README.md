@@ -53,11 +53,19 @@ LOG_LEVEL=info
 
 DB_URL=postgresql://<user>:<password>@<host>/<database>
 ```
+
+### Restaurando Banco de dados
+Para subir a última versão do banco de dados basta executar o seguinte comando na raiz do projeto:
+```sh
+$ alembic upgrade head
+```
+Obs.: Necessário ter uma instância do banco de dados (PostgreSQL) em execução e configurado no [Alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html). 
 ### Iniciando 
 Parar iniciar o projeto, basta executar o seguinte comando no seu terminal:
 ```shell
 $ poetry run app
 ```
+
 Saída de execução:
 ```sheel
 INFO:     Will watch for changes in these directories: ['/path/to/waiwai-backend/backend']
