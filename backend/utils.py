@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta
-from typing import Union, Any
-from jose import jwt
-from pydantic_settings import BaseSettings
 import logging
+import uuid
 
+from backend.schemas import Subject
 
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.DEBUG)
+from jose import jwt
+from datetime import datetime, timedelta
+from pydantic_settings import BaseSettings
+
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] %(levelname)s %(name)s - %(message)s",
@@ -14,28 +14,41 @@ logging.basicConfig(
 )
 logging.getLogger('passlib').setLevel(logging.ERROR)
 
+logger = logging.getLogger("uvicorn.error")
+logger.setLevel(logging.DEBUG)
+
+iss = "waiwaitapota-api"
+
 
 def get_logger(logger_name="uvicorn.error") -> logging.Logger:
     return logging.getLogger(logger_name)
 
 
-def create_access_token(subject: Union[str, Any], settings: BaseSettings, expires_delta: int = None) -> str:
-    if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
-    else:
-        expires_delta = datetime.utcnow() + timedelta(minutes=settings.jwt_expiration_access_token)
+def generate_jti():
+    return str(uuid.uuid4())
 
-    to_encode = {"exp": expires_delta, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.jwt_secret_key_access_token, settings.jwt_algorithm)
+
+def create_access_token(subject: Subject, settings: BaseSettings, expires_delta: timedelta = None) -> str:
+    now = datetime.utcnow()
+
+    if expires_delta is not None:
+        expires_delta = now + expires_delta
+    else:
+        expires_delta = now + timedelta(minutes=settings.jwt_expiration_access_token)
+    payload = {"iss": iss, "sub": str(subject.email), "iat": now, "exp": expires_delta, "jti": generate_jti(),
+               "data": subject.model_dump()}
+    encoded_jwt = jwt.encode(payload, settings.jwt_secret_key_access_token, settings.jwt_algorithm)
     return encoded_jwt
 
 
-def create_refresh_token(subject: Union[str, Any], settings: BaseSettings, expires_delta: int = None) -> str:
-    if expires_delta is not None:
-        expires_delta = datetime.utcnow() + expires_delta
-    else:
-        expires_delta = datetime.utcnow() + timedelta(minutes=settings.jwt_expiration_refresh_token)
+def create_refresh_token(subject: Subject, settings: BaseSettings, expires_delta: timedelta = None) -> str:
+    now = datetime.utcnow()
 
-    to_encode = {"exp": expires_delta, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.jwt_secret_key_refresh_token, settings.jwt_algorithm)
+    if expires_delta is not None:
+        expires_delta = now + expires_delta
+    else:
+        expires_delta = now + timedelta(minutes=settings.jwt_expiration_refresh_token)
+    payload = {"iss": iss, "sub": str(subject.email), 'iat': now, "exp": expires_delta, "jti": generate_jti(),
+               "data": subject.model_dump()}
+    encoded_jwt = jwt.encode(payload, settings.jwt_secret_key_refresh_token, settings.jwt_algorithm)
     return encoded_jwt

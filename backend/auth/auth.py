@@ -8,23 +8,23 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 from backend.configs import Settings, get_session
 from backend.models import User
-from backend.schemas import Token, TokenData, UserAuth
+from backend.schemas import Token, TokenData, UserAuth, Subject
 from backend.utils import create_refresh_token, create_access_token
+from backend.auth import auth_handler
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from passlib.context import CryptContext
-from backend.auth import auth_handler
 
 
 settings = Settings()
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-def sign_jwt(user_id: str) -> Token:
-    access_token = create_access_token(user_id, settings)
-    refresh_token = create_refresh_token(user_id, settings)
+def sign_jwt(subject: Subject) -> Token:
+    access_token = create_access_token(subject, settings)
+    refresh_token = create_refresh_token(subject, settings)
 
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
 

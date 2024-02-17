@@ -21,13 +21,12 @@ class UserCreate(BaseModel):
         assert any(char.isdigit() for char in v), "Deve conter pelo menos um dígito."
         assert any(char.isupper() for char in v), "Deve conter pelo menos uma letra minúscula."
         assert any(char.islower() for char in v), "Deve conter pelo menos uma letra maiúscula."
-
         return v
 
     @field_validator('first_name', 'last_name')
     def first_name_alphanumeric(cls, v: str):
         assert v.isalnum(), 'Deve ser alfanumérico'
-        return v
+        return v.capitalize()
 
 
 class UserLogin(BaseModel):

@@ -12,7 +12,7 @@ from sqlalchemy.sql.functions import func
 from .base import Base
 
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 
 class Attachment(Base):

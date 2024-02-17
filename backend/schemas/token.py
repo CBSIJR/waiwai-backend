@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
@@ -9,3 +9,8 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     subject: str | None = None
+
+
+class Subject(BaseModel):
+    name: str
+    email: EmailStr
