@@ -1,2 +1,2 @@
 from .config import Settings
-from .database import get_session
+from .database import get_async_session

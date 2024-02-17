@@ -16,10 +16,10 @@ class Users(Repository):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_list(self, params: Params) -> Sequence[Row[tuple[User]]]:
+    async def get_list(self, params: Params) -> Sequence[User]:
         statement = select(User).offset((params.page - 1) * params.page_size).limit(params.page_size)
         result = await self.session.execute(statement)
-        users = result.all()
+        users = result.scalars().all()
         return users
 
     async def create(self, entity: UserCreate) -> Token:
@@ -48,12 +48,14 @@ class Users(Repository):
     async def get_by_id(self, entity_id: int) -> User | None:
         statement = select(User).filter(User.id == entity_id)
         result = await self.session.execute(statement)
-        return result.one_or_none()
+        user = result.scalar_one_or_none()
+        return user
 
     async def get_by_email(self, entity_email: str) -> User | None:
-        statement = select(User).filter(User.email == entity_email)
+        statement = select(User).where(User.email == entity_email)
         result = await self.session.execute(statement)
-        return result.one_or_none()
+        user = result.scalar_one_or_none()
+        return user
 
     async def update_by_id(self, entity_id: int, entity: User, user: User) -> None:
         user_db = await self.get_by_id(entity_id)

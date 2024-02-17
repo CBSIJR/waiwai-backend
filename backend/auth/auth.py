@@ -6,14 +6,14 @@ from jose.jwt import JWTError
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from backend.configs import Settings, get_session
+from backend.configs import Settings, get_async_session
 from backend.models import User
 from backend.schemas import Token, TokenData, UserAuth, Subject
 from backend.utils import create_refresh_token, create_access_token
 from backend.auth import auth_handler
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from passlib.context import CryptContext
 
@@ -51,7 +51,7 @@ def verify_password(plain_password: str, hashed_password: str):
 
 
 async def get_current_user(
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     credentials: HTTPAuthorizationCredentials = Depends(auth_handler.security)
 ) -> UserAuth:
     credentials_exception = HTTPException(
@@ -67,9 +67,10 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user: User = session.scalar(
-            select(User).where(User.email == token_data.subject)
-        )
+    statement = select(User).where(User.email == token_data.subject)
+
+    result = await session.execute(statement)
+    user: User | None = result.scalar_one_or_none()
     # logger.debug(user.permission)
     if user is None:
         raise credentials_exception

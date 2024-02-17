@@ -17,10 +17,10 @@ class Words(Repository):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_list(self, params: Params) -> Sequence[Row[tuple[Word]]]:
+    async def get_list(self, params: Params) -> Sequence[Word]:
         statement = select(Word).offset((params.page - 1) * params.page_size).limit(params.page_size)
         result = await self.session.execute(statement)
-        words = result.all()
+        words = result.scalars().all()
         return words
 
     async def create(self, entity: WordCreate, user: UserAuth) -> None:
@@ -40,39 +40,38 @@ class Words(Repository):
         await self.session.commit()
         await self.session.refresh(word_db)
 
-    async def get_by_id(self, entity_id: int) -> Row[tuple[Word]]:
+    async def get_by_id(self, entity_id: int) -> Word | None:
         statement = select(Word).filter(Word.id == entity_id)
         result = await self.session.execute(statement)
-        word = result.one_or_none()
+        word = result.scalar_one_or_none()
         if not word:
             raise HTTPException(
                 status_code=400, detail='Not found'
             )
-
         return word
 
-    async def get_by_word(self, entity_word: str) -> Row[tuple[Word]] | None:
+    async def get_by_word(self, entity_word: str) -> Word | None:
         statement = select(Word).where(Word.word == entity_word)
         result = await self.session.execute(statement)
-        word = result.one_or_none()
+        word = result.scalar_one_or_none()
         return word
 
     async def update_by_id(self, entity_id: int, entity: Word, user: UserAuth) -> None:
         await self.get_by_id(entity_id)
 
-        db_word = await self.get_by_word(entity.word)
-        if db_word:
+        word_db = await self.get_by_word(entity.word)
+        if word_db:
             raise HTTPException(
                 status_code=400, detail='Word already registered'
             )
 
-        db_word = Word(
+        word_db = Word(
             word=entity.word
         )
 
-        self.session.add(db_word)
+        self.session.add(word_db)
         await self.session.commit()
-        await self.session.refresh(db_word)
+        await self.session.refresh(word_db)
 
     async def delete_by_id(self, entity_id, user: UserAuth) -> None:
         pass
