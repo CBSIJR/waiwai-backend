@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Word
 from backend.repositories import Repository
-from backend.schemas import Params, UserAuth, WordCreate, WordUpdate, PermissionType
+from backend.schemas import (
+    Params,
+    PermissionType,
+    UserAuth,
+    WordCreate,
+    WordUpdate,
+)
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 
@@ -60,20 +66,40 @@ class Words(Repository):
     async def update_by_id(
         self, entity_id: int, entity: WordUpdate, user: UserAuth
     ) -> None:
-        await self.get_by_id(entity_id)
+        word_db = await self.get_by_id(entity_id)
 
-        word_db = await self.get_by_word(entity.word)
-        if word_db:
+        if (
+            word_db.user_id != user.id
+            or user.permission != PermissionType.ADMIN
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Usuário sem permissão.',
+            )
+
+        if await self.get_by_word(entity.word):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Palavra já registrada.',
             )
 
-        word_db = Word(word=entity.word)
+        word_db.word = entity.word
 
         self.session.add(word_db)
         await self.session.commit()
         await self.session.refresh(word_db)
 
     async def delete_by_id(self, entity_id, user: UserAuth) -> None:
-        pass
+        word_db = await self.get_by_id(entity_id)
+
+        if word_db.user_id != user.id or (
+            word_db.user_id != user.id
+            and user.permission != PermissionType.ADMIN
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Usuário sem permissão.',
+            )
+
+        await self.session.delete(word_db)
+        await self.session.commit()

@@ -1,8 +1,7 @@
 import time
+from typing import List, Union
 
-from typing import Union, List
-
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
 from jose.jwt import JWTError
@@ -13,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth import auth_handler
 from backend.configs import Settings, get_async_session
 from backend.models import User
-from backend.schemas import Subject, Token, TokenData, UserAuth, PermissionType
+from backend.schemas import PermissionType, Subject, Token, TokenData, UserAuth
 from backend.utils import create_access_token, create_refresh_token
 
 settings = Settings()
@@ -88,7 +87,10 @@ async def get_current_user(
 
 
 class AuthorizationDependency:
-    def __init__(self, permissions: Union[PermissionType, List[PermissionType], None] = None):
+    def __init__(
+        self,
+        permissions: Union[PermissionType, List[PermissionType], None] = None,
+    ):
         self.permissions = permissions
 
     def get_permissions(self):
@@ -103,20 +105,18 @@ class AuthorizationDependency:
         return permissions
 
     async def __call__(
-            self,
-            request: Request,
-            user: UserAuth = Depends(get_current_user)
+        self, request: Request, user: UserAuth = Depends(get_current_user)
     ) -> UserAuth:
 
         if user.permission not in self.get_permissions():
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail='Usuário sem permissão.'
+                detail='Usuário sem permissão.',
             )
         return user
 
 
 def Authorization(
-        permissions: Union[PermissionType, List[PermissionType]]
+    permissions: Union[PermissionType, List[PermissionType]]
 ) -> Depends:
     return Depends(AuthorizationDependency(permissions))

@@ -20,16 +20,20 @@ class JWTBearer(HTTPBearer):
         if credentials:
             if not credentials.scheme == 'Bearer':
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN, detail='Esquema de autenticação inválido.'
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail='Esquema de autenticação inválido.',
                 )
             if not verify_jwt(credentials.credentials):
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN, detail='Token inválido ou expirado.'
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail='Token inválido ou expirado.',
                 )
             return credentials
         else:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail='Código de autorização inválido.'
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Código de autorização inválido.',
             )
+
 
 security = JWTBearer()
