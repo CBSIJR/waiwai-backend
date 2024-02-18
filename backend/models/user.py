@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from .word import Word
+    from .category import Category
 else:
     Word = 'Word'
+    Category = 'Category'
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,6 +30,9 @@ class User(Base):
         default=PermissionType.GUEST
     )
 
+    categories: Mapped[Optional[List[Category]]] = relationship(
+        back_populates='user', cascade='delete, all'
+    )
     words: Mapped[Optional[List[Word]]] = relationship(
         back_populates='user', cascade='delete, all'
     )

@@ -32,7 +32,7 @@ class UserCreate(BaseModel):
 
     @field_validator('first_name', 'last_name')
     def first_name_alphanumeric(cls, v: str):
-        assert v.isalnum(), 'Deve ser alfanumérico'
+        assert v.isalnum(), 'Deve ser alfanumérico.'
         return v.capitalize()
 
 

@@ -29,6 +29,7 @@ async def signup(
 # TODO: Delete account
 # TODO: Change email
 # TODO: Forgot password
+# TODO: Update refresh token
 
 
 @router.post(

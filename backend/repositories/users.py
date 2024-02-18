@@ -46,7 +46,6 @@ class Users(Repository):
 
         self.session.add(user_db)
         await self.session.commit()
-        await self.session.refresh(user_db)
         return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))
 
     async def get_by_id(self, entity_id: int) -> User | None:
@@ -88,7 +87,6 @@ class Users(Repository):
 
         self.session.add(user_db)
         await self.session.commit()
-        await self.session.refresh(user_db)
 
     async def delete_by_id(self, entity_id, entity: User) -> None:
         pass

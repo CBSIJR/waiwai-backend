@@ -45,7 +45,6 @@ class Words(Repository):
 
         self.session.add(word_db)
         await self.session.commit()
-        await self.session.refresh(word_db)
 
     async def get_by_id(self, entity_id: int) -> Word | None:
         statement = select(Word).filter(Word.id == entity_id)
@@ -68,9 +67,9 @@ class Words(Repository):
     ) -> None:
         word_db = await self.get_by_id(entity_id)
 
-        if (
+        if word_db.user_id != user.id or (
             word_db.user_id != user.id
-            or user.permission != PermissionType.ADMIN
+            and user.permission != PermissionType.ADMIN
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -87,9 +86,8 @@ class Words(Repository):
 
         self.session.add(word_db)
         await self.session.commit()
-        await self.session.refresh(word_db)
 
-    async def delete_by_id(self, entity_id, user: UserAuth) -> None:
+    async def delete_by_id(self, entity_id: int, user: UserAuth) -> None:
         word_db = await self.get_by_id(entity_id)
 
         if word_db.user_id != user.id or (

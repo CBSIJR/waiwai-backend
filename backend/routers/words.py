@@ -24,10 +24,10 @@ router = APIRouter(
     '/', status_code=status.HTTP_200_OK, response_model=list[WordPublic]
 )
 async def list_words(
-    pagination: Params = Depends(),
+    params: Params = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
-    words = await Words(session).get_list(pagination)
+    words = await Words(session).get_list(params)
     return words
 
 

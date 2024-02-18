@@ -51,7 +51,8 @@ JWT_EXPIRATION_REFRESH_TOKEN=   # Default: 10080
 # NO_ACCESS_LOG=                # TODO
 LOG_LEVEL=info
 
-DB_URL=postgresql://<user>:<password>@<host>/<database>
+[database]
+DB_URL=postgresql+asyncpg://<user>:<password>@<host>/<database>
 ```
 
 ### Restaurando Banco de dados
