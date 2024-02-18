@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models import Category
 from backend.repositories import Repository
 from backend.schemas import (
+    CategoryCreate,
+    CategoryUpdate,
     Params,
     PermissionType,
     UserAuth,
-    CategoryCreate,
-    CategoryUpdate,
 )
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
@@ -41,7 +41,11 @@ class Categories(Repository):
                 detail='Categoria já registrada.',
             )
 
-        category_db = Category(category=entity.category, description=entity.description, user_id=user.id)
+        category_db = Category(
+            category=entity.category,
+            description=entity.description,
+            user_id=user.id,
+        )
 
         self.session.add(category_db)
         await self.session.commit()
@@ -57,7 +61,9 @@ class Categories(Repository):
         return category
 
     async def get_by_category(self, entity_category: str) -> Category | None:
-        statement = select(Category).where(Category.category == entity_category)
+        statement = select(Category).where(
+            Category.category == entity_category
+        )
         result = await self.session.execute(statement)
         category = result.scalar_one_or_none()
         return category
@@ -68,8 +74,8 @@ class Categories(Repository):
         category_db = await self.get_by_id(entity_id)
 
         if category_db.user_id != user.id or (
-                category_db.user_id != user.id
-                and user.permission != PermissionType.ADMIN
+            category_db.user_id != user.id
+            and user.permission != PermissionType.ADMIN
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -92,8 +98,8 @@ class Categories(Repository):
         category_db = await self.get_by_id(entity_id)
 
         if category_db.user_id != user.id or (
-                category_db.user_id != user.id
-                and user.permission != PermissionType.ADMIN
+            category_db.user_id != user.id
+            and user.permission != PermissionType.ADMIN
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

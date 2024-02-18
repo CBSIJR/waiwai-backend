@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from backend.routers import auth, words
+from backend.routers import auth, words, categories
 
 app = FastAPI(
     redoc_url=None,
@@ -10,6 +10,7 @@ app = FastAPI(
 
 app.include_router(auth)
 app.include_router(words)
+app.include_router(categories)
 
 
 @app.get('/', tags=['Health'])

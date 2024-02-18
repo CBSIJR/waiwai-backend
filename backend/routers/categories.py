@@ -1,9 +1,18 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.configs.database import get_async_session
-from backend.repositories import Users
-from backend.schemas import Message, Token, UserCreate, UserLogin
+from backend.auth import Authorization, get_current_user, security
+from backend.configs import get_async_session
+from backend.repositories import Categories
+from backend.schemas import (
+    CategoryCreate,
+    CategoryPublic,
+    CategoryUpdate,
+    Message,
+    Params,
+    PermissionType,
+    UserAuth,
+)
 
 router = APIRouter(
     prefix='/categories',
@@ -12,4 +21,86 @@ router = APIRouter(
 )
 
 
+@router.get(
+    '/', status_code=status.HTTP_200_OK, response_model=list[CategoryPublic]
+)
+async def list_words(
+    params: Params = Depends(),
+    session: AsyncSession = Depends(get_async_session),
+):
+    categories = await Categories(session).get_list(params)
+    return categories
 
+
+@router.get(
+    '/{category_id}',
+    status_code=status.HTTP_200_OK,
+    responses={'404': {'model': Message}},
+    response_model=CategoryPublic,
+)
+async def get_category(
+    category_id: int, session: AsyncSession = Depends(get_async_session)
+):
+    category = await Categories(session).get_by_id(category_id)
+    return category
+
+
+@router.post(
+    '/',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(security),
+        Authorization([PermissionType.ADMIN]),
+    ],
+    responses={'403': {'model': Message}, '409': {'model': Message}},
+)
+async def create_category(
+    category: CategoryCreate,
+    current_user: UserAuth = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+) -> None:
+    await Categories(session).create(category, current_user)
+
+
+@router.put(
+    '/{category_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(security),
+        Authorization([PermissionType.ADMIN]),
+    ],
+    responses={
+        '403': {'model': Message},
+        '404': {'model': Message},
+        '409': {'model': Message},
+    },
+)
+async def update_category(
+    category_id: int,
+    category: CategoryUpdate,
+    current_user: UserAuth = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    await Categories(session).update_by_id(category_id, category, current_user)
+
+
+
+@router.delete(
+    '/{category_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(security),
+        Authorization([PermissionType.ADMIN]),
+    ],
+    responses={
+        '403': {'model': Message},
+        '404': {'model': Message},
+        '409': {'model': Message},
+    },
+)
+async def delete_category(
+    category_id: int,
+    current_user: UserAuth = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    await Categories(session).delete_by_id(category_id, current_user)

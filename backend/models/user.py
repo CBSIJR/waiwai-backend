@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from .word import Word
     from .category import Category
+    from .word import Word
 else:
     Word = 'Word'
     Category = 'Category'

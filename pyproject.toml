@@ -6,7 +6,6 @@ authors = ["aejunior <user.emerson@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-development = "backend.app:start"
 app = "backend.app:start"
 
 [tool.poetry.dependencies]

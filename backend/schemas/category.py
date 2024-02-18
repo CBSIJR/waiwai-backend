@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
+
 from .base import Base
 
 
