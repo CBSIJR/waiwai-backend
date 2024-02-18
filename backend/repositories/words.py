@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Word
 from backend.repositories import Repository
-from backend.schemas import Params, UserAuth, WordCreate
+from backend.schemas import Params, UserAuth, WordCreate, WordUpdate, PermissionType
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 
@@ -58,7 +58,7 @@ class Words(Repository):
         return word
 
     async def update_by_id(
-        self, entity_id: int, entity: Word, user: UserAuth
+        self, entity_id: int, entity: WordUpdate, user: UserAuth
     ) -> None:
         await self.get_by_id(entity_id)
 

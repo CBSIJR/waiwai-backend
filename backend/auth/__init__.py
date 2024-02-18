@@ -4,6 +4,7 @@ from .auth import (
     get_current_user,
     get_password_hash,
     sign_jwt,
-    verify_password,
+    verify_password
 )
+from .auth import Authorization
 from .auth_handler import JWTBearer, security

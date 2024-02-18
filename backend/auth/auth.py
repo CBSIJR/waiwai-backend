@@ -1,6 +1,8 @@
 import time
 
-from fastapi import Depends, HTTPException, status
+from typing import Union, List
+
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
 from jose.jwt import JWTError
@@ -11,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth import auth_handler
 from backend.configs import Settings, get_async_session
 from backend.models import User
-from backend.schemas import Subject, Token, TokenData, UserAuth
+from backend.schemas import Subject, Token, TokenData, UserAuth, PermissionType
 from backend.utils import create_access_token, create_refresh_token
 
 settings = Settings()
@@ -79,8 +81,42 @@ async def get_current_user(
 
     result = await session.execute(statement)
     user: User | None = result.scalar_one_or_none()
-    # logger.debug(user.permission)
     if user is None:
         raise credentials_exception
 
     return UserAuth(id=user.id, email=user.email, permission=user.permission)
+
+
+class AuthorizationDependency:
+    def __init__(self, permissions: Union[PermissionType, List[PermissionType], None] = None):
+        self.permissions = permissions
+
+    def get_permissions(self):
+        permissions = self.permissions
+        if self.permissions is None:
+            permissions = []
+        if isinstance(permissions, PermissionType):
+            permissions = [permissions]
+        else:
+            permissions = list(permissions)
+
+        return permissions
+
+    async def __call__(
+            self,
+            request: Request,
+            user: UserAuth = Depends(get_current_user)
+    ) -> UserAuth:
+
+        if user.permission not in self.get_permissions():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Usuário sem permissão.'
+            )
+        return user
+
+
+def Authorization(
+        permissions: Union[PermissionType, List[PermissionType]]
+) -> Depends:
+    return Depends(AuthorizationDependency(permissions))

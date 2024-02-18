@@ -3,11 +3,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.auth import auth
 
+
 # https://fastapi.tiangolo.com/reference/security/#fastapi.security.HTTPBearer
-
-
 def verify_jwt(token: str) -> bool:
-
     return True if auth.decode_jwt_exp(token) else False
 
 
@@ -33,6 +31,5 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail='Código de autorização inválido.'
             )
-
 
 security = JWTBearer()
