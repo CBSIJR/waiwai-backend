@@ -75,7 +75,9 @@ class Categories(Repository):
     ) -> None:
         category_db = await self.get_by_id(entity_id)
 
-        if await self.get_by_category(entity.category):
+        category_exists = await self.get_by_category(entity.category)
+
+        if category_exists and category_exists.id != entity_id:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Categoria já registrada.',
