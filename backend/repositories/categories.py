@@ -10,8 +10,7 @@ from backend.schemas import (
     CategoryCreate,
     CategoryUpdate,
     Params,
-    PermissionType,
-    UserAuth,
+    ParamsCategory,
 )
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
@@ -22,17 +21,24 @@ class Categories(Repository):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_list(self, params: Params) -> Sequence[Category]:
-        statement = (
-            select(Category)
-            .offset((params.page - 1) * params.page_size)
-            .limit(params.page_size)
-        )
+    async def get_list(self, params: ParamsCategory) -> Sequence[Category]:
+        if params.q:
+            search = "%{}%".format(params.q)
+            statement = (select(Category)
+                         .filter(Category.category.like(search))
+                         .offset((params.page - 1) * params.page_size)
+                         .limit(params.page_size))
+        else:
+            statement = (
+                select(Category)
+                .offset((params.page - 1) * params.page_size)
+                .limit(params.page_size)
+            )
         result = await self.session.execute(statement)
         categories = result.scalars().all()
         return categories
 
-    async def create(self, entity: CategoryCreate, user: UserAuth) -> None:
+    async def create(self, entity: CategoryCreate) -> None:
         category_db = await self.get_by_category(entity.category)
 
         if category_db:
@@ -43,12 +49,12 @@ class Categories(Repository):
 
         category_db = Category(
             category=entity.category,
-            description=entity.description,
-            user_id=user.id,
+            description=entity.description
         )
 
         self.session.add(category_db)
         await self.session.commit()
+        await self.session.refresh(category_db)
 
     async def get_by_id(self, entity_id: int) -> Category | None:
         statement = select(Category).filter(Category.id == entity_id)
@@ -69,18 +75,8 @@ class Categories(Repository):
         return category
 
     async def update_by_id(
-        self, entity_id: int, entity: CategoryUpdate, user: UserAuth
-    ) -> None:
+        self, entity_id: int, entity: CategoryUpdate) -> None:
         category_db = await self.get_by_id(entity_id)
-
-        if category_db.user_id != user.id or (
-            category_db.user_id != user.id
-            and user.permission != PermissionType.ADMIN
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Usuário sem permissão.',
-            )
 
         if await self.get_by_category(entity.category):
             raise HTTPException(
@@ -94,17 +90,8 @@ class Categories(Repository):
         await self.session.commit()
         await self.session.refresh(category_db)
 
-    async def delete_by_id(self, entity_id: int, user: UserAuth) -> None:
+    async def delete_by_id(self, entity_id: int) -> None:
         category_db = await self.get_by_id(entity_id)
-
-        if category_db.user_id != user.id or (
-            category_db.user_id != user.id
-            and user.permission != PermissionType.ADMIN
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Usuário sem permissão.',
-            )
 
         await self.session.delete(category_db)
         await self.session.commit()

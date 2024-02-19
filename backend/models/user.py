@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from .category import Category
     from .word import Word
 else:
     Word = 'Word'
@@ -30,9 +29,6 @@ class User(Base):
         default=PermissionType.GUEST
     )
 
-    categories: Mapped[Optional[List[Category]]] = relationship(
-        back_populates='user', cascade='delete, all'
-    )
     words: Mapped[Optional[List[Word]]] = relationship(
         back_populates='user', cascade='delete, all'
     )

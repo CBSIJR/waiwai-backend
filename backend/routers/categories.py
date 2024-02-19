@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.auth import Authorization, get_current_user, security
+from backend.auth import Authorization, security
 from backend.configs import get_async_session
 from backend.repositories import Categories
 from backend.schemas import (
@@ -9,9 +9,8 @@ from backend.schemas import (
     CategoryPublic,
     CategoryUpdate,
     Message,
-    Params,
+    ParamsCategory,
     PermissionType,
-    UserAuth,
 )
 
 router = APIRouter(
@@ -25,7 +24,7 @@ router = APIRouter(
     '/', status_code=status.HTTP_200_OK, response_model=list[CategoryPublic]
 )
 async def list_words(
-    params: Params = Depends(),
+    params: ParamsCategory = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
     categories = await Categories(session).get_list(params)
@@ -56,10 +55,9 @@ async def get_category(
 )
 async def create_category(
     category: CategoryCreate,
-    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
-    await Categories(session).create(category, current_user)
+    await Categories(session).create(category)
 
 
 @router.put(
@@ -78,11 +76,9 @@ async def create_category(
 async def update_category(
     category_id: int,
     category: CategoryUpdate,
-    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Categories(session).update_by_id(category_id, category, current_user)
-
+    await Categories(session).update_by_id(category_id, category)
 
 
 @router.delete(
@@ -100,7 +96,6 @@ async def update_category(
 )
 async def delete_category(
     category_id: int,
-    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Categories(session).delete_by_id(category_id, current_user)
+    await Categories(session).delete_by_id(category_id)

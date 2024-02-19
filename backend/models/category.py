@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from .user import User
     from .word import Word
 else:
     Word = 'Word'
@@ -20,9 +19,6 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     category: Mapped[str] = mapped_column(String(20), unique=True)
     description: Mapped[str] = mapped_column(String(255))
-
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    user: Mapped[User] = relationship(back_populates='words')
 
     words: Mapped[Optional[List[Word]]] = relationship(
         secondary=WordCategory, back_populates='categories'
