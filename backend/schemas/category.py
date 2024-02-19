@@ -4,8 +4,8 @@ from .base import Base
 
 
 class Category(Base):
-    category: str = Field(min_length=3, max_length=20)
-    description: str = Field(min_length=3, max_length=255)
+    category: str
+    description: str
 
 
 class CategoryPublic(Category):

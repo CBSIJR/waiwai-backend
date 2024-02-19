@@ -3,12 +3,15 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from .base import Base, PermissionType
 
 
-class UserPublic(BaseModel):
-    id: int
-    first_name: str = Field(min_length=3, max_length=15)
-    last_name: str = Field(min_length=3, max_length=15)
-    full_name: str = Field(min_length=7, max_length=31)
-    email: EmailStr
+class User(Base):
+    first_name: str
+    last_name: str
+    full_name: str
+    email: str
+
+
+class UserPublic(User):
+    pass
 
 
 class UserCreate(BaseModel):
@@ -39,10 +42,6 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str = Field(min_items=8, max_length=32)
-
-
-class User(Base, UserCreate):
-    pass
 
 
 class UserAuth(Base):

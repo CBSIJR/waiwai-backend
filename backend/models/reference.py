@@ -18,7 +18,7 @@ class Reference(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     reference: Mapped[str] = mapped_column(String(80), unique=True)
-    url: Mapped[str] = mapped_column(String(2048), unique=True)
+    url: Mapped[Optional[str]] = mapped_column(String(2048))
 
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
         back_populates='reference'

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 else:
     Word = 'Word'
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, WordCategory

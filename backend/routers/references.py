@@ -3,45 +3,47 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth import Authorization, security
 from backend.configs import get_async_session
-from backend.repositories import Categories
+from backend.repositories import References
 from backend.schemas import (
-    CategoryCreate,
-    CategoryPublic,
-    CategoryUpdate,
     Message,
-    ParamsCategory,
+Params,
+    ParamsReference,
     PermissionType,
+    ReferenceCreate,
+    ReferencePublic,
+    ReferenceUpdate,
+
 )
-
-
+from logging import Logger
+from backend.utils import get_logger
 router = APIRouter(
-    prefix='/categories',
-    tags=['Categorias'],
+    prefix='/references',
+    tags=['Referências'],
 )
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=list[CategoryPublic]
+    '/', status_code=status.HTTP_200_OK, response_model=list[ReferencePublic]
 )
-async def list_categories(
-    params: ParamsCategory = Depends(),
-    session: AsyncSession = Depends(get_async_session)
+async def list_references(
+    params: ParamsReference = Depends(),
+    session: AsyncSession = Depends(get_async_session),
 ):
-    categories = await Categories(session).get_list(params)
-    return categories
+    references = await References(session).get_list(params)
+    return references
 
 
 @router.get(
-    '/{category_id}',
+    '/{reference_id}',
     status_code=status.HTTP_200_OK,
     responses={'404': {'model': Message}},
-    response_model=CategoryPublic,
+    response_model=ReferencePublic,
 )
-async def get_category(
-    category_id: int, session: AsyncSession = Depends(get_async_session)
+async def get_reference(
+    reference_id: int, session: AsyncSession = Depends(get_async_session)
 ):
-    category = await Categories(session).get_by_id(category_id)
-    return category
+    reference = await References(session).get_by_id(reference_id)
+    return reference
 
 
 @router.post(
@@ -53,15 +55,15 @@ async def get_category(
     ],
     responses={'403': {'model': Message}, '409': {'model': Message}},
 )
-async def create_category(
-    category: CategoryCreate,
+async def create_reference(
+    reference: ReferenceCreate,
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
-    await Categories(session).create(category)
+    await References(session).create(reference)
 
 
 @router.put(
-    '/{category_id}',
+    '/{reference_id}',
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(security),
@@ -73,16 +75,16 @@ async def create_category(
         '409': {'model': Message},
     },
 )
-async def update_category(
-    category_id: int,
-    category: CategoryUpdate,
+async def update_reference(
+    reference_id: int,
+    reference: ReferenceUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Categories(session).update_by_id(category_id, category)
+    await References(session).update_by_id(reference_id, reference)
 
 
 @router.delete(
-    '/{category_id}',
+    '/{reference_id}',
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(security),
@@ -94,8 +96,8 @@ async def update_category(
         '409': {'model': Message},
     },
 )
-async def delete_category(
-    category_id: int,
+async def delete_reference(
+    reference_id: int,
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Categories(session).delete_by_id(category_id)
+    await References(session).delete_by_id(reference_id)

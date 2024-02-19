@@ -6,12 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Category
 from backend.repositories import Repository
-from backend.schemas import (
-    CategoryCreate,
-    CategoryUpdate,
-    Params,
-    ParamsCategory,
-)
+from backend.schemas import CategoryCreate, CategoryUpdate, ParamsCategory
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 
@@ -23,11 +18,13 @@ class Categories(Repository):
 
     async def get_list(self, params: ParamsCategory) -> Sequence[Category]:
         if params.q:
-            search = "%{}%".format(params.q)
-            statement = (select(Category)
-                         .filter(Category.category.like(search))
-                         .offset((params.page - 1) * params.page_size)
-                         .limit(params.page_size))
+            search = '%{}%'.format(params.q)
+            statement = (
+                select(Category)
+                .filter(Category.category.like(search))
+                .offset((params.page - 1) * params.page_size)
+                .limit(params.page_size)
+            )
         else:
             statement = (
                 select(Category)
@@ -48,8 +45,7 @@ class Categories(Repository):
             )
 
         category_db = Category(
-            category=entity.category,
-            description=entity.description
+            category=entity.category, description=entity.description
         )
 
         self.session.add(category_db)
@@ -75,7 +71,8 @@ class Categories(Repository):
         return category
 
     async def update_by_id(
-        self, entity_id: int, entity: CategoryUpdate) -> None:
+        self, entity_id: int, entity: CategoryUpdate
+    ) -> None:
         category_db = await self.get_by_id(entity_id)
 
         if await self.get_by_category(entity.category):

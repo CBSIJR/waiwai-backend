@@ -1,3 +1,4 @@
 from .auth import router as auth
-from .words import router as words
 from .categories import router as categories
+from .references import router as references
+from .words import router as words

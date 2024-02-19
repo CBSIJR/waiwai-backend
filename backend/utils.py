@@ -14,14 +14,14 @@ logging.basicConfig(
 )
 logging.getLogger('passlib').setLevel(logging.ERROR)
 
-logger = logging.getLogger('uvicorn.error')
-logger.setLevel(logging.DEBUG)
 
 iss = 'waiwaitapota-api'
 
 
 def get_logger(logger_name='uvicorn.error') -> logging.Logger:
-    return logging.getLogger(logger_name)
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+    return logger
 
 
 def generate_jti():
