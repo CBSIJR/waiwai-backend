@@ -12,7 +12,7 @@ TODO: Add description
 Configurando ambiente do Poetry:
 ```shell
 $ poetry config virtualenvs.path .venv
-$ poetry config settings.virtualenvs.in-project true
+$ poetry config virtualenvs.in-project true
 ```
 Clonando repositório:
 ```shell
