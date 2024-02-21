@@ -2,7 +2,7 @@
 TODO: Add description
 
 ### Requisitos 
-- [Python 3.11.x](https://www.python.org/)
+- [Python 3.12.x](https://www.python.org/)
 - [Poetry 1.7.x](https://python-poetry.org/)
 - [PostgreSQL 16.1](https://www.postgresql.org/)
 #### Opcional
