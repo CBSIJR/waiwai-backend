@@ -31,6 +31,8 @@ async def list_words(
     return words
 
 
+
+
 @router.get(
     '/{word_id}',
     status_code=status.HTTP_200_OK,
@@ -41,6 +43,7 @@ async def get_word(
     word_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     word = await Words(session).get_by_id(word_id)
+
     return word
 
 

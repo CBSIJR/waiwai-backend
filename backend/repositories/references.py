@@ -45,7 +45,10 @@ class References(Repository):
                 detail='Referência já registrada.',
             )
 
-        reference_db = Reference(reference=entity.reference, url=str(entity.url) if entity.url else None)
+        reference_db = Reference(
+            reference=entity.reference,
+            url=str(entity.url) if entity.url else None,
+        )
 
         self.session.add(reference_db)
         await self.session.commit()

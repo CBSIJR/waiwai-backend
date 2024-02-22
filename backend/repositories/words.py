@@ -67,7 +67,7 @@ class Words(Repository):
     ) -> None:
         word_db = await self.get_by_id(entity_id)
 
-        if word_db.user_id != user.id or (
+        if (
             word_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):
@@ -76,7 +76,9 @@ class Words(Repository):
                 detail='Usuário sem permissão.',
             )
 
-        if await self.get_by_word(entity.word):
+        word_exists = await self.get_by_word(entity.word)
+
+        if word_exists and word_exists.id != entity_id:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Palavra já registrada.',
@@ -90,7 +92,7 @@ class Words(Repository):
     async def delete_by_id(self, entity_id: int, user: UserAuth) -> None:
         word_db = await self.get_by_id(entity_id)
 
-        if word_db.user_id != user.id or (
+        if (
             word_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):

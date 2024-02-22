@@ -13,7 +13,6 @@ from backend.schemas import (
     PermissionType,
 )
 
-
 router = APIRouter(
     prefix='/categories',
     tags=['Categorias'],
@@ -25,7 +24,7 @@ router = APIRouter(
 )
 async def list_categories(
     params: ParamsCategory = Depends(),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     categories = await Categories(session).get_list(params)
     return categories

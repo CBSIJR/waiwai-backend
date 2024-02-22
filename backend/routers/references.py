@@ -6,16 +6,13 @@ from backend.configs import get_async_session
 from backend.repositories import References
 from backend.schemas import (
     Message,
-Params,
     ParamsReference,
     PermissionType,
     ReferenceCreate,
     ReferencePublic,
     ReferenceUpdate,
-
 )
-from logging import Logger
-from backend.utils import get_logger
+
 router = APIRouter(
     prefix='/references',
     tags=['Referências'],
