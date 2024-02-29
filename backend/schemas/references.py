@@ -16,7 +16,7 @@ class ReferencePublic(Reference):
 
 
 class ReferenceCreate(BaseModel):
-    reference: str = Field(min_length=3, max_length=20)
+    reference: str = Field(min_length=3, max_length=280)
     url: Optional[
         Annotated[
             AnyHttpUrl,

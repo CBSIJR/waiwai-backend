@@ -58,7 +58,8 @@ class Categories(Repository):
         category = result.scalar_one_or_none()
         if not category:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Categoria: ID {entity_id} não encontrado.',
             )
         return category
 

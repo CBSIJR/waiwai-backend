@@ -3,9 +3,10 @@ from typing import Sequence
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from backend.models import Word
-from backend.repositories import Repository
+from backend.repositories import Categories, Repository
 from backend.schemas import (
     Params,
     PermissionType,
@@ -25,34 +26,47 @@ class Words(Repository):
     async def get_list(self, params: Params) -> Sequence[Word]:
         statement = (
             select(Word)
+            .options(joinedload(Word.categories))
             .offset((params.page - 1) * params.page_size)
             .limit(params.page_size)
         )
         result = await self.session.execute(statement)
-        words = result.scalars().all()
+        words = result.unique().scalars().all()
         return words
 
     async def create(self, entity: WordCreate, user: UserAuth) -> None:
         word_db = await self.get_by_word(entity.word)
-
         if word_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Palavra já registrada.',
             )
 
-        word_db = Word(word=entity.word, user_id=user.id)
+        categories = Categories(self.session)
+        categories_db_list = []
+        for category in entity.categories:
+            result_category = await categories.get_by_id(category)
+            categories_db_list.append(result_category)
+
+        word_db = Word(
+            word=entity.word, user_id=user.id, categories=categories_db_list
+        )
 
         self.session.add(word_db)
         await self.session.commit()
 
     async def get_by_id(self, entity_id: int) -> Word | None:
-        statement = select(Word).filter(Word.id == entity_id)
+        statement = (
+            select(Word)
+            .filter(Word.id == entity_id)
+            .options(joinedload(Word.categories))
+        )
         result = await self.session.execute(statement)
-        word = result.scalar_one_or_none()
+        word = result.unique().scalar_one_or_none()
         if not word:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Palavra: ID {entity_id} não encontrado.',
             )
         return word
 

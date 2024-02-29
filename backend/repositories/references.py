@@ -60,7 +60,8 @@ class References(Repository):
         reference = result.scalar_one_or_none()
         if not reference:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Referência: ID {entity_id} não encontrado.',
             )
         return reference
 

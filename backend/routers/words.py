@@ -31,8 +31,6 @@ async def list_words(
     return words
 
 
-
-
 @router.get(
     '/{word_id}',
     status_code=status.HTTP_200_OK,

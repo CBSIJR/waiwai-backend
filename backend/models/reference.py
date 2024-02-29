@@ -17,7 +17,7 @@ class Reference(Base):
     __tablename__ = 'references'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    reference: Mapped[str] = mapped_column(String(80), unique=True)
+    reference: Mapped[str] = mapped_column(String(280), unique=True)
     url: Mapped[Optional[str]] = mapped_column(String(2048))
 
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
