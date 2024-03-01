@@ -1,6 +1,7 @@
 from .base import Base, Message, PermissionType
 from .category import Category, CategoryCreate, CategoryPublic, CategoryUpdate
-from .params import Params, ParamsCategory, ParamsReference
+from .meaning import Meaning, MeaningCreate, MeaningPublic, MeaningUpdate
+from .params import Params, ParamsCategory, ParamsMeaning, ParamsReference
 from .references import (
     Reference,
     ReferenceCreate,

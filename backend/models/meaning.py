@@ -21,9 +21,9 @@ class Meaning(Base):
     __tablename__ = 'meanings'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    meaning: Mapped[str] = mapped_column(String(50))
-    phonemic: Mapped[str] = mapped_column(String(80))
-    comment: Mapped[str] = mapped_column(String(255))
+    meaning: Mapped[str] = mapped_column(String(200))
+    phonemic: Mapped[Optional[str]] = mapped_column(String(120))
+    comment: Mapped[Optional[str]] = mapped_column(String(256))
     chapter_id: Mapped[Optional[int]]
     entry_id: Mapped[Optional[int]]
     created_at: Mapped[Optional[datetime]] = mapped_column(

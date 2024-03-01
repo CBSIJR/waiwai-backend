@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 
-from backend.routers import auth, categories, references, words
+from backend.routers import (
+    auth,
+    categories,
+    meanings,
+    references,
+    wordmeanings,
+    words,
+)
 
 app = FastAPI(
     redoc_url=None,
@@ -10,6 +17,8 @@ app = FastAPI(
 
 app.include_router(auth)
 app.include_router(words)
+app.include_router(wordmeanings)
+app.include_router(meanings)
 app.include_router(categories)
 app.include_router(references)
 

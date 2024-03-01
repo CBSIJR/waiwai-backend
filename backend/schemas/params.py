@@ -16,3 +16,11 @@ class ParamsCategory(Params):
 
 class ParamsReference(Params):
     q: Optional[str] = Query(None, min_length=1, max_length=50)
+
+
+class ParamsMeaning(Params):
+    q: Optional[str] = Query(None, min_length=1, max_length=50)
+
+
+class ParamsWordMeaning(ParamsMeaning):
+    pass

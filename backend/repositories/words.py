@@ -27,8 +27,10 @@ class Words(Repository):
         statement = (
             select(Word)
             .options(joinedload(Word.categories))
+            .options(joinedload(Word.meanings))
             .offset((params.page - 1) * params.page_size)
             .limit(params.page_size)
+            .order_by(Word.word)
         )
         result = await self.session.execute(statement)
         words = result.unique().scalars().all()
@@ -55,11 +57,12 @@ class Words(Repository):
         self.session.add(word_db)
         await self.session.commit()
 
-    async def get_by_id(self, entity_id: int) -> Word | None:
+    async def get_by_id(self, entity_id: int) -> Word:
         statement = (
             select(Word)
             .filter(Word.id == entity_id)
             .options(joinedload(Word.categories))
+            .options(joinedload(Word.meanings))
         )
         result = await self.session.execute(statement)
         word = result.unique().scalar_one_or_none()
@@ -98,7 +101,14 @@ class Words(Repository):
                 detail='Palavra já registrada.',
             )
 
+        categories = Categories(self.session)
+        categories_db_list = []
+        for category in entity.categories:
+            result_category = await categories.get_by_id(category)
+            categories_db_list.append(result_category)
+
         word_db.word = entity.word
+        word_db.categories = categories_db_list
 
         self.session.add(word_db)
         await self.session.commit()

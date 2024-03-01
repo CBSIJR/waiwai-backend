@@ -55,8 +55,7 @@ pythonpath = "."
 extend-exclude = '(migrations/)'
 
 [tool.taskipy.tasks]
-lint = 'ruff . && blue --check . --diff'
-lint-fix  = 'ruff . --fix'
+lint = 'ruff . && blue --check . --diff && isort --check . --diff'
 format = 'blue .  && isort .'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=backend -vv'
