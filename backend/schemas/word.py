@@ -25,11 +25,7 @@ class WordPublic(Word):
 class WordCreate(BaseModel):
     word: str = Field(min_length=1, max_length=50)
     phonemic: Optional[str] = Field(min_length=1, max_length=120)
-    categories: list[int]
-
-
-class Word(Base, WordCreate):
-    user_id: int
+    categories: List[int]
 
 
 class WordUpdate(WordCreate):
