@@ -5,7 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
-from backend.repositories import Repository, Words
+from backend.repositories import Repository
+from .words import Words
 from backend.schemas import MeaningCreate, MeaningUpdate, ParamsMeaning
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
@@ -40,7 +41,6 @@ class Meanings(Repository):
     async def create(self, entity: MeaningCreate) -> None:
         meaning_db = Meaning(
             meaning=entity.meaning,
-            phonemic=entity.phonemic,
             comment=entity.comment,
             chapter_id=entity.chapter_id,
             entry_id=entity.entry_id,
@@ -68,7 +68,6 @@ class Meanings(Repository):
         meaning_db = await self.get_by_id(entity_id)
 
         meaning_db.meaning = entity.meaning
-        meaning_db.phonemic = entity.phonemic
         meaning_db.comment = entity.comment
         meaning_db.chapter_id = entity.chapter_id
         meaning_db.entry_id = entity.entry_id
@@ -116,7 +115,6 @@ class Meanings(Repository):
     ) -> None:
         meaning_db = Meaning(
             meaning=entity.meaning,
-            phonemic=entity.phonemic,
             comment=entity.comment,
             chapter_id=entity.chapter_id,
             entry_id=entity.entry_id,

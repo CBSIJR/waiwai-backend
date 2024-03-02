@@ -22,7 +22,6 @@ class Meaning(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     meaning: Mapped[str] = mapped_column(String(200))
-    phonemic: Mapped[Optional[str]] = mapped_column(String(120))
     comment: Mapped[Optional[str]] = mapped_column(String(256))
     chapter_id: Mapped[Optional[int]]
     entry_id: Mapped[Optional[int]]
