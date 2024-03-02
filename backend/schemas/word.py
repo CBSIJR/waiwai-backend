@@ -1,7 +1,7 @@
 from datetime import datetime
+from typing import List, Optional
 
 from pydantic import Field
-from typing import Optional, List
 
 from .base import Base, BaseModel
 from .category import CategoryPublic
@@ -20,7 +20,6 @@ class Word(Base):
 
 class WordPublic(Word):
     pass
-
 
 
 class WordCreate(BaseModel):

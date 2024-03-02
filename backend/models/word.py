@@ -27,8 +27,7 @@ class Word(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     word: Mapped[str] = mapped_column(String(50), unique=True)
-    # TODO: Dinamicamente desabilitar campos
-    # phonemic: Mapped[Optional[str]] = mapped_column(String(120))
+    phonemic: Mapped[Optional[str]] = mapped_column(String(120))
     created_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
