@@ -18,8 +18,19 @@
 - Atualizar por ID
 - Deletar por ID
 ## Categorias
--
-
+- Listar
+  - Paginação (Quantidade de itens retornados e iteração dos itens)
+- Criar
+- Retornar por ID
+- Atualizar por ID
+- Deletar  por ID
+## Referências
+- Listar
+  - Paginação (Quantidade de itens retornados e iteração dos itens)
+- Criar
+- Retornar por ID
+- Atualizar por ID
+- Deletar  por ID
 
 # TODO
 - [X] Criar migration com atualização de tamanho da referência.
