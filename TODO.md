@@ -1,6 +1,6 @@
 # Endpoints
 
-## Autenticação
+## Autenticação e Autorização
 - Registro
 - Acesso
 ## Palavras
@@ -20,6 +20,7 @@
 ## Categorias
 - Listar
   - Paginação (Quantidade de itens retornados e iteração dos itens)
+  - Busca textual
 - Criar
 - Retornar por ID
 - Atualizar por ID
@@ -27,6 +28,7 @@
 ## Referências
 - Listar
   - Paginação (Quantidade de itens retornados e iteração dos itens)
+  - Busca textual
 - Criar
 - Retornar por ID
 - Atualizar por ID
@@ -36,8 +38,7 @@
 - [X] Criar migration com atualização de tamanho da referência.
   - Migrations commitadas.
 - [ ] Construir **raw text** para os campos de busca de palavra.
-- [X] Incluir significados das palavras.
-  - [Script](/database/importa_dados.sql) de inserção feito. 
+- [X] Script para incluir significados das palavras.
 - [ ] Vericar validações com novos tamanhos de campos.
 - [X] Acordar se o fonema está associado à palavra ou significado.
   - Fonema ainda não padronizado;
@@ -45,3 +46,7 @@
 - [ ] Checar se o significado pertence ao usuário e seu nível de autorização.
 - [ ] Trocar [python-jose](https://pypi.org/project/python-jose/) para [pyjwt](https://pypi.org/project/PyJWT/) ou [PyJwt512](https://pypi.org/project/PyJwt512/).
 - [ ] Ajustar significado e palavra.
+- [ ] Relacionar anexos com o usuário.
+- [ ] Checar em modelos validação para texto vazio e com espaços fora do corpo.
+- [ ] Criar associação de upload
+- [ ] Fazer rota de upload

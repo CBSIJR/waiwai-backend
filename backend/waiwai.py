@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from backend.routers import (
     auth,
@@ -7,6 +8,7 @@ from backend.routers import (
     references,
     wordmeanings,
     words,
+    worduploads,
 )
 
 app = FastAPI(
@@ -21,6 +23,8 @@ app.include_router(wordmeanings)
 app.include_router(meanings)
 app.include_router(categories)
 app.include_router(references)
+app.include_router(worduploads)
+app.mount('/uploads', StaticFiles(directory='backend/files'), 'files')
 
 
 @app.get('/', tags=['Health'])

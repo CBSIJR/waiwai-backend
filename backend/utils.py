@@ -1,6 +1,7 @@
 import logging
 import uuid
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 
 from jose import jwt
 from pydantic_settings import BaseSettings
@@ -31,7 +32,7 @@ def generate_jti():
 def create_access_token(
     subject: Subject, settings: BaseSettings, expires_delta: timedelta = None
 ) -> str:
-    now = datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
 
     if expires_delta is not None:
         expires_delta = now + expires_delta
@@ -56,7 +57,7 @@ def create_access_token(
 def create_refresh_token(
     subject: Subject, settings: BaseSettings, expires_delta: timedelta = None
 ) -> str:
-    now = datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
 
     if expires_delta is not None:
         expires_delta = now + expires_delta
