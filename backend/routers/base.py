@@ -3,10 +3,12 @@ from pathlib import Path
 
 from fastapi import UploadFile
 from pydantic import BaseModel, HttpUrl
+from pydantic_settings import BaseSettings
+
 from backend.utils import get_logger as logger
 
 
-class FileData(BaseModel):
+class FileData(UploadFile):
     """
     Represents the result of an upload operation
     Attributes:
@@ -19,13 +21,8 @@ class FileData(BaseModel):
         error (str): Error message for failed upload.
         message: Response Message
     """
-
-    file: bytes = b''
     path: Path | str = ''
     url: HttpUrl | str = ''
-    size: int = 0
-    filename: str = ''
-    content_type: str = ''
     status: bool = True
     error: str = ''
     message: str = ''
@@ -40,29 +37,25 @@ class CloudUpload(ABC):
         config: A config dict
     """
 
-    def __init__(self, config: dict | None = None):
+    def __init__(self, config: BaseSettings | None = None):
         """
         Keyword Args:
             config (dict): A dictionary of config settings
         """
-        self.config = config or {}
+        self.config = config
 
     async def __call__(
         self,
         file: UploadFile | None = None,
-        files: list[UploadFile] | None = None,
-    ) -> FileData | list[FileData]:
+    ) -> FileData:
         try:
             if file:
                 return await self.upload(file=file)
-
-            elif files:
-                return await self.multi_upload(files=files)
             else:
                 return FileData(
                     status=False,
-                    error='No file or files provided',
-                    message='No file or files provided',
+                    error='No file or static provided',
+                    message='No file or static provided',
                 )
         except Exception as err:
             return FileData(
@@ -73,10 +66,6 @@ class CloudUpload(ABC):
 
     @abstractmethod
     async def upload(self, *, file: UploadFile) -> FileData:
-        """"""
-
-    @abstractmethod
-    async def multi_upload(self, *, files: list[UploadFile]) -> list[FileData]:
         """"""
 
 
@@ -95,7 +84,7 @@ class Local(CloudUpload):
         """
         try:
             dest = (
-                self.config.get('dest') or Path('uploads') / f'{file.filename}'
+                self.config.static_path / f'{file.filename}'
             )
             file_object = await file.read()
             with open(f'{dest}', 'wb') as fh:
@@ -115,14 +104,3 @@ class Local(CloudUpload):
             return FileData(
                 status=False, error=str(err), message=f'Unable to save file'
             )
-
-    async def multi_upload(self, *, files: list[UploadFile]) -> list[FileData]:
-        """
-        Upload multiple files to the destination.
-        Args:
-            files (list[tuple[str, UploadFile]]): A list of tuples of field name and the file to upload.
-        Returns:
-            list[FileData]: A list of uploaded file data
-        """
-        res = await asyncio.gather(*[self.upload(file=file) for file in files])
-        return list(res)

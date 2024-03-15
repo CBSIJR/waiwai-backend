@@ -10,6 +10,9 @@ from backend.routers import (
     words,
     worduploads,
 )
+from backend.configs import Settings
+
+settings = Settings()
 
 app = FastAPI(
     redoc_url=None,
@@ -24,7 +27,7 @@ app.include_router(meanings)
 app.include_router(categories)
 app.include_router(references)
 app.include_router(worduploads)
-app.mount('/uploads', StaticFiles(directory='backend/files'), 'files')
+app.mount('/uploads', StaticFiles(directory=settings.static_path), 'static')
 
 
 @app.get('/', tags=['Health'])
