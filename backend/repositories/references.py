@@ -100,3 +100,10 @@ class References(Repository):
 
         await self.session.delete(reference_db)
         await self.session.commit()
+
+    async def all(self) -> Sequence[Reference]:
+        statement = select(Reference)
+        result = await self.session.execute(statement)
+        references = result.scalars().all()
+        return references
+

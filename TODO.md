@@ -52,3 +52,4 @@
 - [X] Fazer rota de upload.
 - [ ] Melhorar tratamento para tipos seguros de arquivos na rota upload.
 - [ ] Para upload, deve-se criar arquivo temporário para escrevê-lo posteriormente na pasta pública.
+- [ ] Corrigir exportação de tabelas. URGENTE!

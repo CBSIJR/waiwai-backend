@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from .attachment import Attachment
     from .word import Word
+    from .meaning import Meaning
 else:
     Word = 'Word'
     Category = 'Category'
     Attachment = 'Attachment'
-
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,6 +30,10 @@ class User(Base):
     )  # TODO: definir tamanho baseado na encriptação
     permission: Mapped[Optional[PermissionType]] = mapped_column(
         default=PermissionType.GUEST
+    )
+
+    meanings: Mapped[Optional[List[Meaning]]] = relationship(
+        back_populates='user', cascade='delete, all'
     )
 
     words: Mapped[Optional[List[Word]]] = relationship(

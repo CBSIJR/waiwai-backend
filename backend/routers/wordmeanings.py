@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.auth import Authorization, JWTBearer
+from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
+    UserAuth,
     MeaningCreate,
     MeaningPublic,
     Message,
@@ -36,13 +37,14 @@ async def list_meanings(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(security),
-        Authorization([PermissionType.ADMIN]),
+        Authorization([PermissionType.ADMIN, PermissionType.USER]),
     ],
     responses={'403': {'model': Message}, '409': {'model': Message}},
 )
 async def create_meaning(
     word_id: int,
     meaning: MeaningCreate,
+    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ) -> None:
-    await Meanings(session).create_by_word(word_id, meaning)
+    await Meanings(session).create(word_id, meaning, current_user)

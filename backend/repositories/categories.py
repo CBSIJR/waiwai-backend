@@ -95,3 +95,9 @@ class Categories(Repository):
 
         await self.session.delete(category_db)
         await self.session.commit()
+
+    async def all(self) -> Sequence[Category]:
+        statement = select(Category)
+        result = await self.session.execute(statement)
+        categories = result.scalars().all()
+        return categories

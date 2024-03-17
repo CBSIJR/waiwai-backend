@@ -13,7 +13,7 @@ from backend.schemas import (
     WordPublic,
     WordUpdate,
 )
-
+from typing import List
 router = APIRouter(
     prefix='/words',
     tags=['Palavras'],
@@ -22,7 +22,7 @@ security = JWTBearer()
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=list[WordPublic]
+    '/', status_code=status.HTTP_200_OK, response_model=List[WordPublic]
 )
 async def list_words(
     params: Params = Depends(),
@@ -104,3 +104,15 @@ async def delete_word(
     session: AsyncSession = Depends(get_async_session),
 ):
     await Words(session).delete_by_id(word_id, current_user)
+
+
+@router.get(
+    '/export/all',
+    status_code=status.HTTP_200_OK,
+    response_model=List[WordPublic],
+)
+async def get_export(
+    session: AsyncSession = Depends(get_async_session)
+):
+    words = await Words(session).all()
+    return words

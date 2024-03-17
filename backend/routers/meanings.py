@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from backend.auth import Authorization, JWTBearer
+from typing import List
+from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
+    UserAuth,
     MeaningPublic,
     MeaningUpdate,
     Message,
@@ -57,7 +58,7 @@ async def update_meaning(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(security),
-        Authorization([PermissionType.ADMIN]),
+        Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
         '403': {'model': Message},
@@ -67,6 +68,20 @@ async def update_meaning(
 )
 async def delete_meaning(
     meaning_id: int,
+    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Meanings(session).delete_by_id(meaning_id)
+    await Meanings(session).delete_by_id(meaning_id, current_user)
+
+
+@router.get(
+    '/export/all',
+    status_code=status.HTTP_200_OK,
+    responses={'404': {'model': Message}},
+    response_model=List[MeaningPublic],
+)
+async def get_meaning(
+    session: AsyncSession = Depends(get_async_session)
+):
+    meanings = await Meanings(session).all()
+    return meanings

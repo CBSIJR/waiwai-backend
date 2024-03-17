@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from typing import List
+
 from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import References
@@ -21,7 +23,7 @@ security = JWTBearer()
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=list[ReferencePublic]
+    '/', status_code=status.HTTP_200_OK, response_model=List[ReferencePublic]
 )
 async def list_references(
     params: ParamsReference = Depends(),
@@ -99,3 +101,15 @@ async def delete_reference(
     session: AsyncSession = Depends(get_async_session),
 ):
     await References(session).delete_by_id(reference_id)
+
+@router.get(
+    '/export/all',
+    status_code=status.HTTP_200_OK,
+    responses={'404': {'model': Message}},
+    response_model=List[ReferencePublic],
+)
+async def get_meaning(
+    session: AsyncSession = Depends(get_async_session)
+):
+    references = await References(session).all()
+    return references

@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.repositories import Repository
 from backend.models import Attachment
 from backend.schemas import (
+    PermissionType,
+    UserAuth,
     ParamsAttachments,
     AttachmentCreate,
     AttachmentUpdate,
@@ -67,8 +69,18 @@ class Attachments(Repository):
     ) -> None:
         raise NotImplementedError
 
-    async def delete_by_id(self, entity_id: int) -> None:
+    async def delete_by_id(self, entity_id: int, user: UserAuth) -> None:
         attachment_db = await self.get_by_id(entity_id)
+
+        if (
+                attachment_db.user_id != user.id
+                and user.permission != PermissionType.ADMIN
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Usuário sem permissão.',
+            )
+
         await self.session.delete(attachment_db)
         await self.session.commit()
         remove(attachment_db.filedir)
@@ -91,6 +103,12 @@ class Attachments(Repository):
             .limit(params.page_size)
         )
 
+        result = await self.session.execute(statement)
+        attachments = result.scalars().all()
+        return attachments
+
+    async def all(self) -> Sequence[Attachment]:
+        statement = select(Attachment)
         result = await self.session.execute(statement)
         attachments = result.scalars().all()
         return attachments

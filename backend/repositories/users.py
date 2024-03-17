@@ -106,3 +106,9 @@ class Users(Repository):
             )
 
         return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))
+
+    async def all(self) -> Sequence[User]:
+        statement = select(User)
+        result = await self.session.execute(statement)
+        users = result.scalars().all()
+        return users

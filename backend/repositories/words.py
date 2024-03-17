@@ -136,3 +136,9 @@ class Words(Repository):
 
         await self.session.delete(word_db)
         await self.session.commit()
+
+    async def all(self) -> Sequence[Word]:
+        statement = select(Word).options()
+        result = await self.session.execute(statement)
+        words = result.scalars().all()
+        return words

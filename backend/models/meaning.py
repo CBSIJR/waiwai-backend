@@ -4,9 +4,12 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .reference import Reference
+    from .user import User
     from .word import Word
 else:
     Word = 'Word'
+    User = 'User'
+    Reference = 'Reference'
 
 from datetime import datetime
 
@@ -31,6 +34,9 @@ class Meaning(Base):
     update_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user: Mapped[User] = relationship(back_populates='meanings')
+
     word_id: Mapped[int] = mapped_column(ForeignKey('words.id'))
     word: Mapped[Word] = relationship(back_populates='meanings')
 
