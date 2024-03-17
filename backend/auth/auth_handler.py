@@ -34,6 +34,3 @@ class JWTBearer(HTTPBearer):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Código de autorização inválido.',
             )
-
-
-security = JWTBearer()

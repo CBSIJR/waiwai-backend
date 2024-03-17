@@ -9,13 +9,15 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.auth import auth_handler
 from backend.configs import Settings, get_async_session
 from backend.models import User
 from backend.schemas import PermissionType, Subject, Token, TokenData, UserAuth
 from backend.utils import create_access_token, create_refresh_token
 
+from .auth_handler import JWTBearer
+
 settings = Settings()
+security = JWTBearer()
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
@@ -61,7 +63,7 @@ def verify_password(plain_password: str, hashed_password: str):
 
 async def get_current_user(
     session: AsyncSession = Depends(get_async_session),
-    credentials: HTTPAuthorizationCredentials = Depends(auth_handler.security),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> UserAuth:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

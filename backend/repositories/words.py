@@ -23,7 +23,9 @@ class Words(Repository):
         super().__init__()
         self.session: AsyncSession = session
 
-    async def get_list(self, params: Params) -> Sequence[Word]:
+    async def get_list(
+        self, params: Params, user_id: int | None = None
+    ) -> Sequence[Word]:
         statement = (
             select(Word)
             .options(joinedload(Word.categories))
@@ -32,6 +34,9 @@ class Words(Repository):
             .limit(params.page_size)
             .order_by(Word.word)
         )
+        if user_id:
+            statement = statement.where(Word.user_id == user_id)
+
         result = await self.session.execute(statement)
         words = result.unique().scalars().all()
         return words

@@ -7,4 +7,4 @@ from .auth import (
     sign_jwt,
     verify_password,
 )
-from .auth_handler import JWTBearer, security
+from .auth_handler import JWTBearer

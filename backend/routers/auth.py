@@ -8,7 +8,6 @@ from backend.schemas import Message, Token, UserCreate, UserLogin
 router = APIRouter(
     prefix='/auth',
     tags=['Autenticação'],
-    # dependencies=[Depends(get_token_header)],
 )
 
 

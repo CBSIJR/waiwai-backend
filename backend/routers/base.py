@@ -1,106 +1,64 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
+import re
+from uuid import uuid4
 
-from fastapi import UploadFile
-from pydantic import BaseModel, HttpUrl
-from pydantic_settings import BaseSettings
+from fastapi import HTTPException, UploadFile, status
 
-from backend.utils import get_logger as logger
-
-
-class FileData(UploadFile):
-    """
-    Represents the result of an upload operation
-    Attributes:
-        file (Bytes): File saved to memory
-        path (Path | str): Path to file in local storage
-        url (HttpUrl | str): A URL for accessing the object.
-        size (int): Size of the file in bytes.
-        filename (str): Name of the file.
-        status (bool): True if the upload is successful else False.
-        error (str): Error message for failed upload.
-        message: Response Message
-    """
-    path: Path | str = ''
-    url: HttpUrl | str = ''
-    status: bool = True
-    error: str = ''
-    message: str = ''
+from backend.schemas import AttachmentData
+from backend.utils import get_logger
 
 
-class CloudUpload(ABC):
-    """
-    Methods:
-        upload: Uploads a single object to the cloud
-        multi_upload: Upload multiple objects to the cloud
-    Attributes:
-        config: A config dict
-    """
+class Local:
+    async def __call__(self, file: UploadFile) -> AttachmentData:
+        get_logger().debug(file)
+        return await self.upload(file=file)
 
-    def __init__(self, config: BaseSettings | None = None):
-        """
-        Keyword Args:
-            config (dict): A dictionary of config settings
-        """
-        self.config = config
-
-    async def __call__(
-        self,
-        file: UploadFile | None = None,
-    ) -> FileData:
-        try:
-            if file:
-                return await self.upload(file=file)
-            else:
-                return FileData(
-                    status=False,
-                    error='No file or static provided',
-                    message='No file or static provided',
-                )
-        except Exception as err:
-            return FileData(
-                status=False,
-                error=str(err),
-                message='File upload was unsuccessful',
+    @staticmethod
+    async def upload(*, file: UploadFile) -> AttachmentData:
+        file_type = file.content_type
+        file_size = file.size
+        file_name = re.sub(r'[^\w.]', '_', file.filename.lower())
+        file_uuid = uuid4()
+        if file is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Arquivo não encontrado.',
+            )
+        if not file_type or not (
+            file_type.startswith('audio') or file_type.startswith('image')
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Tipo de arquivo inválido.',
+            )
+        if file_size == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Arquivo inválido.',
+            )
+        if len(file_name) < 10 or len(file_name) > 200:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Nome de arquivo inválido.',
             )
 
-    @abstractmethod
-    async def upload(self, *, file: UploadFile) -> FileData:
-        """"""
-
-
-class Local(CloudUpload):
-    """
-    Local storage for FastAPI.
-    """
-
-    async def upload(self, *, file: UploadFile) -> FileData:
-        """
-        Upload a file to the destination.
-        Args:
-            file UploadFile: File to upload
-        Returns:
-            FileData: Result of file upload
-        """
         try:
-            dest = (
-                self.config.static_path / f'{file.filename}'
-            )
-            file_object = await file.read()
-            with open(f'{dest}', 'wb') as fh:
+            file_object: bytes = await file.read()
+            filename = f'/{str(file_uuid)}-{file_name}'
+            filedir = f'backend/static{filename}'
+            with open(filedir, 'wb') as fh:
                 fh.write(file_object)
+            fh.close()
             await file.close()
-            return FileData(
-                path=dest,
-                message=f'{file.filename} saved successfully',
+            return AttachmentData(
+                uuid=file_uuid,
+                filename=filename,
+                filedir=filedir,
+                url=f'/uploads{filename}',
                 content_type=file.content_type,
-                size=file.size,
-                filename=file.filename,
             )
-        except Exception as err:
-            logger.error(
-                f'Error uploading file: {err} in {self.__class__.__name__}'
-            )
-            return FileData(
-                status=False, error=str(err), message=f'Unable to save file'
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f'Erro ao salvar o arquivo: {str(e)}.',
             )

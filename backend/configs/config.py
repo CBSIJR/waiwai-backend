@@ -49,7 +49,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=('.env.prod', '.env.dev', '.env'), env_file_encoding='utf-8'
     )
-    static_path: str = Field(alias='STATIC_PATH', default='backend/static')
 
     def __init__(self) -> None:
         super().__init__()

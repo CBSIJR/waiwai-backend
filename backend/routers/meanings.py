@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.auth import Authorization, security
+from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
@@ -15,6 +15,7 @@ router = APIRouter(
     prefix='/meanings',
     tags=['Significados'],
 )
+security = JWTBearer()
 
 
 @router.get(

@@ -1,7 +1,8 @@
 from .base import Base, Message, PermissionType
+from .attachment import AttachmentCreate, AttachmentData, AttachmentPublic, AttachmentUpdate
 from .category import Category, CategoryCreate, CategoryPublic, CategoryUpdate
 from .meaning import Meaning, MeaningCreate, MeaningPublic, MeaningUpdate
-from .params import Params, ParamsCategory, ParamsMeaning, ParamsReference
+from .params import Params, ParamsCategory, ParamsMeaning, ParamsReference, ParamsAttachments
 from .references import (
     Reference,
     ReferenceCreate,

@@ -3,10 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
+    from .attachment import Attachment
     from .word import Word
 else:
     Word = 'Word'
     Category = 'Category'
+    Attachment = 'Attachment'
+
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,5 +33,9 @@ class User(Base):
     )
 
     words: Mapped[Optional[List[Word]]] = relationship(
+        back_populates='user', cascade='delete, all'
+    )
+
+    attachments: Mapped[Optional[List[Attachment]]] = relationship(
         back_populates='user', cascade='delete, all'
     )

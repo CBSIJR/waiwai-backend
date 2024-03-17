@@ -46,7 +46,9 @@
 - [ ] Checar se o significado pertence ao usuário e seu nível de autorização.
 - [ ] Trocar [python-jose](https://pypi.org/project/python-jose/) para [pyjwt](https://pypi.org/project/PyJWT/) ou [PyJwt512](https://pypi.org/project/PyJwt512/).
 - [ ] Ajustar significado e palavra.
-- [ ] Relacionar anexos com o usuário.
+- [X] Relacionar anexos com o usuário.
 - [ ] Checar em modelos validação para texto vazio e com espaços fora do corpo.
-- [ ] Criar associação de upload
-- [ ] Fazer rota de upload
+- [X] Criar associação de upload
+- [X] Fazer rota de upload.
+- [ ] Melhorar tratamento para tipos seguros de arquivos na rota upload.
+- [ ] Para upload, deve-se criar arquivo temporário para escrevê-lo posteriormente na pasta pública.

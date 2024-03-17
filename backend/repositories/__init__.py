@@ -4,3 +4,4 @@ from .meanings import Meanings
 from .references import References
 from .users import Users
 from .words import Words
+from .attachments import Attachments
