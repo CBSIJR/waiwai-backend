@@ -5,3 +5,4 @@ from .references import References
 from .users import Users
 from .words import Words
 from .attachments import Attachments
+from .version import Versions
