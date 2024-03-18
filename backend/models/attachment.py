@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from .word import Word
 else:
     Word = 'Word'
-    User = 'Word'
+    User = 'User'
 
 from datetime import datetime
 from uuid import UUID
