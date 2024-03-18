@@ -34,4 +34,4 @@ app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
 
 @app.get('/', tags=['Health'])
 def health() -> dict:
-    return {'message': 'hello'}
+    return {'detail': 'hello world!'}
