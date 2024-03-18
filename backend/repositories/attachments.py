@@ -2,8 +2,9 @@ from typing import Sequence
 from os import remove
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import func, select, Row
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.serializer import dumps
 
 from backend.repositories import Repository
 from backend.models import Attachment
@@ -17,7 +18,7 @@ from backend.schemas import (
 )
 
 from .words import Words
-
+from backend.utils import get_logger
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 
@@ -107,8 +108,8 @@ class Attachments(Repository):
         attachments = result.scalars().all()
         return attachments
 
-    async def all(self) -> Sequence[Attachment]:
+    async def all(self) -> Sequence[Row[tuple[Attachment]]]:
         statement = select(Attachment)
         result = await self.session.execute(statement)
-        attachments = result.scalars().all()
-        return attachments
+        attachments = result.fetchall()
+        return [attachment[0] for attachment in attachments]

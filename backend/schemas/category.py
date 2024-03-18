@@ -11,6 +11,10 @@ class Category(Base):
 class CategoryPublic(Category):
     pass
 
+class CategoryExport(Category):
+    pass
+
+
 
 class CategoryCreate(BaseModel):
     category: str = Field(min_length=3, max_length=20)

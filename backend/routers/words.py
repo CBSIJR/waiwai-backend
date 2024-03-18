@@ -5,6 +5,7 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Words
 from backend.schemas import (
+    WordExport,
     Message,
     Params,
     PermissionType,
@@ -109,7 +110,7 @@ async def delete_word(
 @router.get(
     '/export/all',
     status_code=status.HTTP_200_OK,
-    response_model=List[WordPublic],
+    response_model=List[WordExport],
 )
 async def get_export(
     session: AsyncSession = Depends(get_async_session)

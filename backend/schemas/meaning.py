@@ -10,7 +10,13 @@ class Meaning(Base):
     comment: str | None
     chapter_id: int | None
     entry_id: int | None
+    word_id: int
     reference_id: int
+    user_id: int
+
+
+class MeaningExport(Meaning):
+    pass
 
 
 class MeaningPublic(Meaning):

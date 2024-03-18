@@ -22,6 +22,14 @@ class WordPublic(Word):
     pass
 
 
+class WordExport(Base):
+    word: str
+    phonemic: str | None
+    created_at: datetime
+    update_at: datetime
+    user_id: int
+
+
 class WordCreate(BaseModel):
     word: str = Field(min_length=1, max_length=50)
     phonemic: Optional[str] = Field(min_length=1, max_length=120)

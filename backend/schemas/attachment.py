@@ -19,6 +19,10 @@ class AttachmentPublic(Attachment):
     pass
 
 
+class AttachmentExport(Attachment):
+    pass
+
+
 class AttachmentData(BaseModel):
     uuid: UUID
     filename: str

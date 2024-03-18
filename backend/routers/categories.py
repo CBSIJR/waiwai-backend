@@ -5,6 +5,7 @@ from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import Categories
 from backend.schemas import (
+CategoryExport,
     CategoryCreate,
     CategoryPublic,
     CategoryUpdate,
@@ -104,7 +105,7 @@ async def delete_category(
     '/export/all',
     status_code=status.HTTP_200_OK,
     responses={'404': {'model': Message}},
-    response_model=List[CategoryPublic],
+    response_model=List[CategoryExport],
 )
 async def get_meaning(
     session: AsyncSession = Depends(get_async_session)

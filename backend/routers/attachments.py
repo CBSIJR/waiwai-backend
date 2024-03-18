@@ -9,11 +9,12 @@ from backend.schemas import (
     AttachmentPublic,
     Message,
     PermissionType,
+    AttachmentExport
 )
 from typing import List
 router = APIRouter(
     prefix='/attachments',
-    tags=['Uploads'],
+    tags=['Anexos'],
 )
 security = JWTBearer()
 
@@ -52,13 +53,13 @@ async def delete_meaning(
     await Attachments(session).delete_by_id(attachment_id, current_user)
 
 @router.get(
-    '/export',
+    '/export/all',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=List[AttachmentPublic],
+    response_model=List[AttachmentExport],
 )
 async def get_export(
     session: AsyncSession = Depends(get_async_session)
 ):
     attachments = await Attachments(session).all()
     return attachments
+

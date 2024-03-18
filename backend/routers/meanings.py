@@ -5,6 +5,7 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
+    MeaningExport,
     UserAuth,
     MeaningPublic,
     MeaningUpdate,
@@ -78,7 +79,7 @@ async def delete_meaning(
     '/export/all',
     status_code=status.HTTP_200_OK,
     responses={'404': {'model': Message}},
-    response_model=List[MeaningPublic],
+    response_model=List[MeaningExport],
 )
 async def get_meaning(
     session: AsyncSession = Depends(get_async_session)

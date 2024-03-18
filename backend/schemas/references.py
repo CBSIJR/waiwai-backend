@@ -11,6 +11,10 @@ class Reference(Base):
     url: str | None
 
 
+class ReferenceExport(Reference):
+    pass
+
+
 class ReferencePublic(Reference):
     pass
 
