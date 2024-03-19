@@ -6,6 +6,7 @@ from backend.schemas import VersionPublic
 from backend.repositories import Versions
 from backend.configs import Settings, get_async_session
 from backend.routers import (
+    users,
     auth,
     categories,
     meanings,
@@ -32,6 +33,8 @@ app.include_router(categories)
 app.include_router(references)
 app.include_router(wordattachments)
 app.include_router(attachments)
+app.include_router(users)
+
 app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
 
 

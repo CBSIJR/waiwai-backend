@@ -51,3 +51,8 @@ class UserAuth(Base):
 
 class UserUpdate(UserCreate):
     pass
+
+
+class UserExport(Base):
+    full_name: str
+

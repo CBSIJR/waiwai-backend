@@ -45,3 +45,7 @@ class Word(Base):
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
         back_populates='word', cascade='delete, all'
     )
+
+    categories: Mapped[Optional[List[Category]]] = relationship(
+        secondary=WordCategory, back_populates='words'
+    )

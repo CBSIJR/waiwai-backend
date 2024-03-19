@@ -4,13 +4,13 @@ from .category import Category, CategoryCreate, CategoryPublic, CategoryUpdate, 
 from .meaning import Meaning, MeaningCreate, MeaningPublic, MeaningUpdate, MeaningExport
 from .params import Params, ParamsCategory, ParamsMeaning, ParamsReference, ParamsAttachments
 from .references import (
-ReferenceExport,
+    ReferenceExport,
     Reference,
     ReferenceCreate,
     ReferencePublic,
     ReferenceUpdate,
 )
 from .token import Subject, Token, TokenData
-from .user import User, UserAuth, UserCreate, UserLogin, UserPublic, UserUpdate
+from .user import User, UserAuth, UserCreate, UserLogin, UserPublic, UserUpdate, UserExport
 from .word import Word, WordCreate, WordPublic, WordUpdate, WordExport
 from .version import VersionPublic

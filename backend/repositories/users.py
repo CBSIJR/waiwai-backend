@@ -109,6 +109,7 @@ class Users(Repository):
 
     async def all(self) -> Sequence[User]:
         statement = select(User)
+
         result = await self.session.execute(statement)
         users = result.scalars().all()
         return users

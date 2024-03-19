@@ -6,3 +6,4 @@ from .wordmeanings import router as wordmeanings
 from .words import router as words
 from .wordattachments import router as wordattachments
 from .attachments import router as attachments
+from .users import router as users
