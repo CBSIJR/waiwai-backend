@@ -12,9 +12,10 @@ else:
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, DDL, event, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
+from sqlalchemy.types import SchemaType
 
 from .base import Base
 

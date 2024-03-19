@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 else:
     Meaning = 'Meaning'
 
-from sqlalchemy import String
+from sqlalchemy import String, event, DDL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -23,3 +23,4 @@ class Reference(Base):
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
         back_populates='reference'
     )
+

@@ -15,7 +15,7 @@ else:
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, event, DDL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 
@@ -44,8 +44,4 @@ class Word(Base):
 
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
         back_populates='word', cascade='delete, all'
-    )
-
-    categories: Mapped[Optional[List[Category]]] = relationship(
-        secondary=WordCategory, back_populates='words'
     )

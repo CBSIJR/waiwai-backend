@@ -1,7 +1,7 @@
 import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import pool
+from sqlalchemy import pool, event, Table, DDL
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -102,3 +102,29 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+
+
+# triggers = [
+#     DDL(
+#     'CREATE TRIGGER on_attachments AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."attachments"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('attachments');").execute_if(dialect='postgresql'),
+#     DDL(
+#     'CREATE TRIGGER on_categories AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."categories"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('categories');"),
+#     DDL(
+#     'CREATE TRIGGER on_words AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."words"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('words');"),
+#     DDL(
+#     'CREATE TRIGGER on_users AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."users"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('users');"),
+#     DDL(
+#     'CREATE TRIGGER on_references AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."references"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('references');"),
+#     DDL(
+#     'CREATE TRIGGER on_meanings AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."meanings"'
+#     "FOR EACH ROW EXECUTE PROCEDURE version_update('meanings');")]
+#
+# for trigger in triggers:
+#     event.listens_for(Table, 'after_create', trigger=trigger.execute_if(dialect='postgresql'))
+
+# event.listen(Table, 'after_create', update_function)

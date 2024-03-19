@@ -4,7 +4,6 @@ from os import remove
 from fastapi import HTTPException, status
 from sqlalchemy import func, select, Row
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.serializer import dumps
 
 from backend.repositories import Repository
 from backend.models import Attachment
@@ -18,7 +17,6 @@ from backend.schemas import (
 )
 
 from .words import Words
-from backend.utils import get_logger
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 

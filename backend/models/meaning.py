@@ -13,7 +13,7 @@ else:
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, event, DDL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 
@@ -42,3 +42,5 @@ class Meaning(Base):
 
     reference_id: Mapped[int] = mapped_column(ForeignKey('references.id'))
     reference: Mapped[Reference] = relationship(back_populates='meanings')
+
+

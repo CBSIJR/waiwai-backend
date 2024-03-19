@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 else:
     Word = 'Word'
 
-from sqlalchemy import String
+from sqlalchemy import String, event, DDL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, WordCategory
@@ -23,3 +23,4 @@ class Category(Base):
     words: Mapped[Optional[List[Word]]] = relationship(
         secondary=WordCategory, back_populates='categories'
     )
+

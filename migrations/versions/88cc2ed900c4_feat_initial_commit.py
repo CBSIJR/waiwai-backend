@@ -1,18 +1,18 @@
-"""feat: creating database
+"""feat: initial commit
 
-Revision ID: b3c02bb93acb
+Revision ID: 88cc2ed900c4
 Revises: 
-Create Date: 2024-02-17 16:29:50.351545
+Create Date: 2024-03-18 23:45:58.387980
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'b3c02bb93acb'
+revision: str = '88cc2ed900c4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -29,11 +29,10 @@ def upgrade() -> None:
     )
     op.create_table('references',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('reference', sa.String(length=80), nullable=False),
-    sa.Column('url', sa.String(length=2048), nullable=False),
+    sa.Column('reference', sa.String(length=280), nullable=False),
+    sa.Column('url', sa.String(length=2048), nullable=True),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('reference'),
-    sa.UniqueConstraint('url')
+    sa.UniqueConstraint('reference')
     )
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -49,16 +48,18 @@ def upgrade() -> None:
     op.create_table('version',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('version', sa.NUMERIC(), nullable=False),
-    sa.Column('words', sa.Integer(), nullable=False),
-    sa.Column('meanings', sa.Integer(), nullable=False),
-    sa.Column('categories', sa.Integer(), nullable=False),
-    sa.Column('references', sa.Integer(), nullable=False),
-    sa.Column('attachments', sa.Integer(), nullable=False),
+    sa.Column('words', postgresql.TIMESTAMP(), nullable=False),
+    sa.Column('meanings', postgresql.TIMESTAMP(), nullable=False),
+    sa.Column('categories', postgresql.TIMESTAMP(), nullable=False),
+    sa.Column('references', postgresql.TIMESTAMP(), nullable=False),
+    sa.Column('attachments', postgresql.TIMESTAMP(), nullable=False),
+    sa.Column('users', postgresql.TIMESTAMP(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('words',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('word', sa.String(length=255), nullable=False),
+    sa.Column('word', sa.String(length=50), nullable=False),
+    sa.Column('phonemic', sa.String(length=120), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('update_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -69,26 +70,32 @@ def upgrade() -> None:
     op.create_table('attachments',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.Uuid(), nullable=False),
-    sa.Column('path', sa.String(length=255), nullable=False),
+    sa.Column('filename', sa.String(length=255), nullable=False),
+    sa.Column('filedir', sa.String(length=255), nullable=False),
+    sa.Column('url', sa.String(length=255), nullable=False),
+    sa.Column('content_type', sa.String(length=20), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('update_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('word_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['word_id'], ['words.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('path')
+    sa.UniqueConstraint('url')
     )
     op.create_table('meanings',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('meaning', sa.String(length=50), nullable=False),
-    sa.Column('phonemic', sa.String(length=80), nullable=False),
-    sa.Column('comment', sa.String(length=255), nullable=False),
+    sa.Column('meaning', sa.String(length=200), nullable=False),
+    sa.Column('comment', sa.String(length=256), nullable=True),
     sa.Column('chapter_id', sa.Integer(), nullable=True),
     sa.Column('entry_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('update_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('word_id', sa.Integer(), nullable=False),
     sa.Column('reference_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['reference_id'], ['references.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['word_id'], ['words.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -99,11 +106,46 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['word_id'], ['words.id'], ),
     sa.PrimaryKeyConstraint('word_id', 'category_id')
     )
+
+    triggers = [
+        sa.DDL(
+            'CREATE TRIGGER on_attachments AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."attachments"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('attachments');").execute_if(dialect='postgresql'),
+        sa.DDL(
+            'CREATE TRIGGER on_categories AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."categories"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('categories');"),
+        sa.DDL(
+            'CREATE TRIGGER on_words AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."words"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('words');"),
+        sa.DDL(
+            'CREATE TRIGGER on_users AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."users"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('users');"),
+        sa.DDL(
+            'CREATE TRIGGER on_references AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."references"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('references');"),
+        sa.DDL(
+            'CREATE TRIGGER on_meanings AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."meanings"'
+            "FOR EACH ROW EXECUTE PROCEDURE version_update('meanings');")]
+    for trigger in triggers:
+        trigger.execute_if(dialect='postgresql')
+    # for trigger in triggers:
+    #     event.listens_for(Table, 'after_create', trigger=trigger.execute_if(dialect='postgresql'))
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+
+    triggers = [
+        sa.DDL('DROP TRIGGER IF EXISTS on_attachments'),
+        sa.DDL('DROP TRIGGER IF EXISTS on_categories'),
+        sa.DDL('DROP TRIGGER IF EXISTS on_words'),
+        sa.DDL('DROP TRIGGER IF EXISTS on_users'),
+        sa.DDL('DROP TRIGGER IF EXISTS on_references'),
+        sa.DDL('DROP TRIGGER IF EXISTS on_meanings')]
+    for trigger in triggers:
+        trigger.execute_if(dialect='postgresql')
+
     op.drop_table('word_category')
     op.drop_table('meanings')
     op.drop_table('attachments')

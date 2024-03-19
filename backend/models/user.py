@@ -11,7 +11,7 @@ else:
     Category = 'Category'
     Attachment = 'Attachment'
 
-from sqlalchemy import String
+from sqlalchemy import String, event, DDL
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, PermissionType
@@ -43,3 +43,6 @@ class User(Base):
     attachments: Mapped[Optional[List[Attachment]]] = relationship(
         back_populates='user', cascade='delete, all'
     )
+
+
+
