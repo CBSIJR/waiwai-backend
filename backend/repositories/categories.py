@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Category
-from backend.repositories import Repository
 from backend.schemas import CategoryCreate, CategoryUpdate, ParamsCategory
+
+from .base import Repository
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 

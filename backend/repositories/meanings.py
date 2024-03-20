@@ -5,7 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
-from backend.repositories import Repository
 from backend.schemas import (
     MeaningCreate,
     MeaningUpdate,
@@ -14,6 +13,7 @@ from backend.schemas import (
     UserAuth,
 )
 
+from .base import Repository
 from .words import Words
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database

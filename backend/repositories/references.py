@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Reference
-from backend.repositories import Repository
 from backend.schemas import ParamsReference, ReferenceCreate, ReferenceUpdate
+
+from .base import Repository
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 

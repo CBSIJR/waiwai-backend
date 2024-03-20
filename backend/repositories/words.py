@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from backend.models import Word
-from backend.repositories import Categories, Repository
 from backend.schemas import (
     Params,
     PermissionType,
@@ -14,6 +13,9 @@ from backend.schemas import (
     WordCreate,
     WordUpdate,
 )
+
+from .base import Repository
+from .categories import Categories
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 

@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth import get_password_hash, sign_jwt, verify_password
 from backend.models import User
-from backend.repositories import Repository
 from backend.schemas import Params, Subject, Token, UserCreate, UserLogin
+
+from .base import Repository
 
 
 class Users(Repository):
