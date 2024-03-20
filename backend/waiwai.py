@@ -1,21 +1,21 @@
-from fastapi import FastAPI, status, Depends
+from fastapi import Depends, FastAPI, status
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.schemas import VersionPublic
-from backend.repositories import Versions
 from backend.configs import Settings, get_async_session
+from backend.repositories import Versions
 from backend.routers import (
-    users,
+    attachments,
     auth,
     categories,
     meanings,
     references,
+    users,
+    wordattachments,
     wordmeanings,
     words,
-    wordattachments,
-    attachments
 )
+from backend.schemas import VersionPublic
 
 settings = Settings()
 
@@ -43,10 +43,12 @@ def health() -> dict:
     return {'detail': 'hello world!'}
 
 
-@app.get('/version',
-         status_code=status.HTTP_200_OK,
-         response_model=VersionPublic,
-         tags=['Versão'])
+@app.get(
+    '/version',
+    status_code=status.HTTP_200_OK,
+    response_model=VersionPublic,
+    tags=['Versão'],
+)
 async def get_version(session: AsyncSession = Depends(get_async_session)):
     version = await Versions(session).first()
     return version

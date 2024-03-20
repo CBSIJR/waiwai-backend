@@ -55,4 +55,3 @@ class UserUpdate(UserCreate):
 
 class UserExport(Base):
     full_name: str
-

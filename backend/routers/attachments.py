@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,13 +7,13 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Attachments
 from backend.schemas import (
-    UserAuth,
+    AttachmentExport,
     AttachmentPublic,
     Message,
     PermissionType,
-    AttachmentExport
+    UserAuth,
 )
-from typing import List
+
 router = APIRouter(
     prefix='/attachments',
     tags=['Anexos'],
@@ -52,14 +54,12 @@ async def delete_meaning(
 ):
     await Attachments(session).delete_by_id(attachment_id, current_user)
 
+
 @router.get(
     '/export/all',
     status_code=status.HTTP_200_OK,
     response_model=List[AttachmentExport],
 )
-async def get_export(
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_export(session: AsyncSession = Depends(get_async_session)):
     attachments = await Attachments(session).all()
     return attachments
-

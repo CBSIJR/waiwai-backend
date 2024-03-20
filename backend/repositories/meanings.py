@@ -6,10 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
 from backend.repositories import Repository
-from backend.schemas import MeaningCreate, MeaningUpdate, ParamsMeaning, PermissionType, UserAuth
+from backend.schemas import (
+    MeaningCreate,
+    MeaningUpdate,
+    ParamsMeaning,
+    PermissionType,
+    UserAuth,
+)
 
 from .words import Words
-
 
 # https://stackoverflow.com/questions/68360687/sqlalchemy-asyncio-orm-how-to-query-the-database
 
@@ -40,7 +45,9 @@ class Meanings(Repository):
 
         return meanings
 
-    async def create(self, word_id: int, entity: MeaningCreate, user: UserAuth) -> None:
+    async def create(
+        self, word_id: int, entity: MeaningCreate, user: UserAuth
+    ) -> None:
         meaning_db = Meaning(
             meaning=entity.meaning,
             comment=entity.comment,
@@ -67,7 +74,7 @@ class Meanings(Repository):
         return meaning
 
     async def update_by_id(
-            self, entity_id: int, entity: MeaningUpdate
+        self, entity_id: int, entity: MeaningUpdate
     ) -> None:
         meaning_db = await self.get_by_id(entity_id)
 
@@ -85,8 +92,8 @@ class Meanings(Repository):
         meaning_db = await self.get_by_id(entity_id)
 
         if (
-                meaning_db.user_id != user.id
-                and user.permission != PermissionType.ADMIN
+            meaning_db.user_id != user.id
+            and user.permission != PermissionType.ADMIN
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -97,7 +104,7 @@ class Meanings(Repository):
         await self.session.commit()
 
     async def get_list_by_word_id(
-            self, word_id: int, params: ParamsMeaning
+        self, word_id: int, params: ParamsMeaning
     ) -> Sequence[Meaning]:
         await self.words.get_by_id(word_id)
 

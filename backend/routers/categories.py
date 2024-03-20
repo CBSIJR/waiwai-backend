@@ -1,12 +1,14 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+
 from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import Categories
 from backend.schemas import (
-CategoryExport,
     CategoryCreate,
+    CategoryExport,
     CategoryPublic,
     CategoryUpdate,
     Message,
@@ -101,14 +103,13 @@ async def delete_category(
 ):
     await Categories(session).delete_by_id(category_id)
 
+
 @router.get(
     '/export/all',
     status_code=status.HTTP_200_OK,
     responses={'404': {'model': Message}},
     response_model=List[CategoryExport],
 )
-async def get_meaning(
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_export(session: AsyncSession = Depends(get_async_session)):
     categories = await Categories(session).all()
     return categories

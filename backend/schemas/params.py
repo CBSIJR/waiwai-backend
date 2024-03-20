@@ -29,4 +29,3 @@ class ParamsWordMeaning(ParamsMeaning):
 class ParamsAttachments(BaseModel):
     page: Optional[int] = 1
     page_size: Optional[int] = Field(Query(default=5, ge=1, le=500))
-

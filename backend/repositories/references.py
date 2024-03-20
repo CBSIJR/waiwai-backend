@@ -106,4 +106,3 @@ class References(Repository):
         result = await self.session.execute(statement)
         references = result.scalars().all()
         return references
-

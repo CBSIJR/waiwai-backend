@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
+
+from pydantic import BaseModel
+
 from .base import Base
 
 
@@ -21,4 +23,3 @@ class VersionPublic(BaseModel):
     references: datetime
     attachments: datetime
     users: datetime
-

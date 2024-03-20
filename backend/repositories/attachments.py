@@ -1,19 +1,19 @@
-from typing import Sequence
 from os import remove
+from typing import Sequence
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select, Row
+from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.repositories import Repository
 from backend.models import Attachment
+from backend.repositories import Repository
 from backend.schemas import (
-    PermissionType,
-    UserAuth,
-    ParamsAttachments,
     AttachmentCreate,
     AttachmentUpdate,
     Params,
+    ParamsAttachments,
+    PermissionType,
+    UserAuth,
 )
 
 from .words import Words
@@ -45,7 +45,7 @@ class Attachments(Repository):
             url=entity.url,
             content_type=entity.content_type,
             user_id=entity.user_id,
-            word_id=entity.word_id
+            word_id=entity.word_id,
         )
 
         self.session.add(attachment_db)
@@ -64,7 +64,7 @@ class Attachments(Repository):
         return attachment
 
     async def update_by_id(
-            self, entity_id: int, entity: AttachmentUpdate
+        self, entity_id: int, entity: AttachmentUpdate
     ) -> None:
         raise NotImplementedError
 
@@ -72,8 +72,8 @@ class Attachments(Repository):
         attachment_db = await self.get_by_id(entity_id)
 
         if (
-                attachment_db.user_id != user.id
-                and user.permission != PermissionType.ADMIN
+            attachment_db.user_id != user.id
+            and user.permission != PermissionType.ADMIN
         ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -92,7 +92,9 @@ class Attachments(Repository):
         count_attachments = result.scalar()
         return count_attachments
 
-    async def get_list_by_word_id(self, word_id: int, params: ParamsAttachments) -> Sequence[Attachment]:
+    async def get_list_by_word_id(
+        self, word_id: int, params: ParamsAttachments
+    ) -> Sequence[Attachment]:
         await self.words.get_by_id(word_id)
 
         statement = (

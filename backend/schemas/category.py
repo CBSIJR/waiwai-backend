@@ -11,9 +11,9 @@ class Category(Base):
 class CategoryPublic(Category):
     pass
 
+
 class CategoryExport(Category):
     pass
-
 
 
 class CategoryCreate(BaseModel):

@@ -1,7 +1,8 @@
-from sqlalchemy.dialects.postgresql import NUMERIC, TIMESTAMP
-from sqlalchemy import DateTime
-from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+
+from sqlalchemy.dialects.postgresql import NUMERIC, TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 

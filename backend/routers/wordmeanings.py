@@ -5,12 +5,12 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
-    UserAuth,
     MeaningCreate,
     MeaningPublic,
     Message,
     ParamsMeaning,
     PermissionType,
+    UserAuth,
 )
 
 router = APIRouter(

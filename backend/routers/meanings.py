@@ -1,16 +1,18 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+
 from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
     MeaningExport,
-    UserAuth,
     MeaningPublic,
     MeaningUpdate,
     Message,
     PermissionType,
+    UserAuth,
 )
 
 router = APIRouter(
@@ -81,8 +83,6 @@ async def delete_meaning(
     responses={'404': {'model': Message}},
     response_model=List[MeaningExport],
 )
-async def get_meaning(
-    session: AsyncSession = Depends(get_async_session)
-):
+async def get_export(session: AsyncSession = Depends(get_async_session)):
     meanings = await Meanings(session).all()
     return meanings

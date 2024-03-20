@@ -5,10 +5,10 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Attachments
 from backend.schemas import (
-    ParamsAttachments,
-    AttachmentPublic,
     AttachmentCreate,
     AttachmentData,
+    AttachmentPublic,
+    ParamsAttachments,
     PermissionType,
     UserAuth,
 )
