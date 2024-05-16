@@ -1,7 +1,8 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, or_, func
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
@@ -30,7 +31,7 @@ class Meanings(Repository):
             search = '%{}%'.format(params.q)
             statement = (
                 select(Meaning)
-                .filter(Meaning.meaning.like(search))
+                .where(or_(func.upper(Meaning.meaning_pt).like(func.upper(search)), func.upper(Meaning.meaning_ww).like(func.upper(search))))
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
@@ -49,11 +50,11 @@ class Meanings(Repository):
         self, word_id: int, entity: MeaningCreate, user: UserAuth
     ) -> None:
         meaning_db = Meaning(
-            meaning=entity.meaning,
-            comment=entity.comment,
-            chapter_id=entity.chapter_id,
-            entry_id=entity.entry_id,
-            user_id=user.id,
+            meaning_pt=entity.meaning_pt,
+            meaning_ww=entity.meaning_ww,
+            comment_pt=entity.comment_pt,
+            comment_ww=entity.comment_ww,
+            user_id=entity.user_id,
             word_id=entity.word_id,
             reference_id=entity.reference_id,
         )
@@ -78,11 +79,10 @@ class Meanings(Repository):
     ) -> None:
         meaning_db = await self.get_by_id(entity_id)
 
-        meaning_db.meaning = entity.meaning
-        meaning_db.comment = entity.comment
-        meaning_db.chapter_id = entity.chapter_id
-        meaning_db.entry_id = entity.entry_id
-        meaning_db.reference_id = entity.reference_id
+        meaning_db.meaning_pt = entity.meaning_pt,
+        meaning_db.meaning_ww = entity.meaning_ww,
+        meaning_db.comment_pt = entity.comment_pt,
+        meaning_db.comment_ww = entity.comment_ww,
 
         self.session.add(meaning_db)
         await self.session.commit()
@@ -113,7 +113,7 @@ class Meanings(Repository):
             statement = (
                 select(Meaning)
                 .filter(
-                    Meaning.meaning.like(search), Meaning.word_id == word_id
+                    func.upper(Meaning.meaning).like(func.upper(search)), Meaning.word_id == word_id
                 )
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)

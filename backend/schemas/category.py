@@ -22,7 +22,7 @@ class CategoryCreate(BaseModel):
 
     @field_validator('category')
     def first_name_alphanumeric(cls, v: str):
-        assert v.isalnum(), 'Deve ser alfanumérico.'
+        assert v.isalpha() or v.isnumeric(), 'Deve ser alfanumérico.'
         return v.capitalize()
 
 

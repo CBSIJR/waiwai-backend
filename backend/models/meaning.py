@@ -24,10 +24,10 @@ class Meaning(Base):
     __tablename__ = 'meanings'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    meaning: Mapped[str] = mapped_column(String(200))
-    comment: Mapped[Optional[str]] = mapped_column(String(256))
-    chapter_id: Mapped[Optional[int]]
-    entry_id: Mapped[Optional[int]]
+    meaning_pt: Mapped[str] = mapped_column(String(300))
+    meaning_ww: Mapped[Optional[str]] = mapped_column(String(300))
+    comment_pt: Mapped[Optional[str]] = mapped_column(String(800))
+    comment_ww: Mapped[Optional[str]] = mapped_column(String(800))
     created_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

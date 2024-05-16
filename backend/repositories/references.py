@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Reference
@@ -22,7 +22,7 @@ class References(Repository):
             search = '%{}%'.format(params.q)
             statement = (
                 select(Reference)
-                .filter(Reference.reference.like(search))
+                .where(or_(func.upper(Reference.reference).like(func.upper(search)), func.upper(Reference.authors).like(func.upper(search))))
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
@@ -48,7 +48,9 @@ class References(Repository):
 
         reference_db = Reference(
             reference=entity.reference,
-            url=str(entity.url) if entity.url else None,
+            year=entity.year if entity.year else None,
+            authors=entity.authors,
+            url=entity.url if entity.url else None,
         )
 
         self.session.add(reference_db)
@@ -90,7 +92,9 @@ class References(Repository):
             )
 
         reference_db.reference = entity.reference
-        reference_db.url = str(entity.url) if entity.url else None
+        reference_db.year = entity.year if entity.year else None
+        reference_db.authors = entity.authors
+        reference_db.url = entity.url if entity.url else None
 
         self.session.add(reference_db)
         await self.session.commit()

@@ -1,15 +1,18 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 from .base import Base
 
 
 class Meaning(Base):
-    meaning: str
-    comment: str | None
-    chapter_id: int | None
-    entry_id: int | None
+    meaning_pt: str
+    meaning_ww: str | None
+    comment_pt: str | None
+    comment_ww: str | None
+    created_at: datetime
+    update_at: datetime
     word_id: int
     reference_id: int
     user_id: int
@@ -24,11 +27,10 @@ class MeaningPublic(Meaning):
 
 
 class MeaningCreate(BaseModel):
-    meaning: str = Field(min_length=1, max_length=200)
-    comment: Optional[str] = Field(min_length=5, max_length=256)
-    chapter_id: Optional[int]
-    entry_id: Optional[int]
-    reference_id: int
+    meaning_pt: str = Field(min_length=1, max_length=300)
+    meaning_ww: Optional[str] = Field(min_length=1, max_length=300)
+    comment_ww: Optional[str] = Field(min_length=5, max_length=800)
+    comment_pt: Optional[str] = Field(min_length=5, max_length=800)
 
 
 class MeaningUpdate(MeaningCreate):

@@ -8,6 +8,8 @@ from .base import Base
 
 class Reference(Base):
     reference: str
+    year: int
+    authors: str
     url: str | None
 
 
@@ -20,7 +22,9 @@ class ReferencePublic(Reference):
 
 
 class ReferenceCreate(BaseModel):
-    reference: str = Field(min_length=3, max_length=280)
+    reference: str = Field(min_length=3, max_length=350)
+    year: Optional[int] = Field(min_length=1900, max_length=9999)
+    authors: str = Field(min_length=3, max_length=350)
     url: Optional[
         Annotated[
             AnyHttpUrl,

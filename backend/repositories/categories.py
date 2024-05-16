@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Category
@@ -22,7 +22,7 @@ class Categories(Repository):
             search = '%{}%'.format(params.q)
             statement = (
                 select(Category)
-                .filter(Category.category.like(search))
+                .filter(func.upper(Category.category).like(func.upper(search)))
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
@@ -66,7 +66,7 @@ class Categories(Repository):
 
     async def get_by_category(self, entity_category: str) -> Category | None:
         statement = select(Category).where(
-            Category.category == entity_category
+            func.upper(Category.category) == func.upper(entity_category)
         )
         result = await self.session.execute(statement)
         category = result.scalar_one_or_none()

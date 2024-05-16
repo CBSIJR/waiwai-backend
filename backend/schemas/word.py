@@ -31,7 +31,7 @@ class WordExport(Base):
 
 
 class WordCreate(BaseModel):
-    word: str = Field(min_length=1, max_length=50)
+    word: str = Field(min_length=1, max_length=100)
     phonemic: Optional[str] = Field(min_length=1, max_length=120)
     categories: List[int]
 
