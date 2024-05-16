@@ -52,4 +52,5 @@
 - [X] Fazer rota de upload.
 - [ ] Melhorar tratamento para tipos seguros de arquivos na rota upload.
 - [ ] Para upload, deve-se criar arquivo temporário para escrevê-lo posteriormente na pasta pública.
-- [ ] Corrigir exportação de tabelas. URGENTE!
+- [ ] Corrigir performance exportação de tabelas. URGENTE!
+- [ ] Incluir container NGINX para proxy e cacheamento das rotas de exportação. 
