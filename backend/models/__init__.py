@@ -1,5 +1,5 @@
 from .attachment import Attachment
-from .base import Base
+from .base import Base, WordCategory
 from .category import Category
 from .meaning import Meaning
 from .reference import Reference

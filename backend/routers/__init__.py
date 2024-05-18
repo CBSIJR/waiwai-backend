@@ -7,3 +7,4 @@ from .users import router as users
 from .wordattachments import router as wordattachments
 from .wordmeanings import router as wordmeanings
 from .words import router as words
+from .wordcategory import router as wordcategory

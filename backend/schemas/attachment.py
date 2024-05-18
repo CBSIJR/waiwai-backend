@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from pydantic import BaseModel
-
+from datetime import datetime
 from .base import Base
 
 
@@ -13,6 +13,8 @@ class Attachment(Base):
     content_type: str
     user_id: int
     word_id: int
+    created_at: datetime
+    updated_at: datetime
 
 
 class AttachmentPublic(Attachment):

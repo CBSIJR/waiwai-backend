@@ -5,7 +5,7 @@ from .attachment import (
     AttachmentPublic,
     AttachmentUpdate,
 )
-from .base import Base, Message, PermissionType
+from .base import Base, Message, PermissionType, WordCategoryExport
 from .category import (
     Category,
     CategoryCreate,

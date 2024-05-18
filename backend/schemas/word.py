@@ -12,7 +12,7 @@ class Word(Base):
     word: str
     phonemic: str | None
     created_at: datetime
-    update_at: datetime
+    updated_at: datetime
     categories: List[CategoryPublic]
     meanings: List[MeaningPublic]
     user_id: int
@@ -26,7 +26,7 @@ class WordExport(Base):
     word: str
     phonemic: str | None
     created_at: datetime
-    update_at: datetime
+    updated_at: datetime
     user_id: int
 
 

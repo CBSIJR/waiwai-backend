@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from backend.models import Word
+from backend.models import WordCategory, Word
 from backend.schemas import (
     Params,
     PermissionType,
@@ -144,3 +144,10 @@ class Words(Repository):
         result = await self.session.execute(statement)
         words = result.scalars().all()
         return words
+
+    async def all_wc(self) -> Sequence[WordCategory]:
+        statement = select(WordCategory)
+        result = await self.session.execute(statement)
+        word_categories = result.all()
+        return word_categories
+

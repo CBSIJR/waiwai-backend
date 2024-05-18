@@ -12,7 +12,7 @@ class Meaning(Base):
     comment_pt: str | None
     comment_ww: str | None
     created_at: datetime
-    update_at: datetime
+    updated_at: datetime
     word_id: int
     reference_id: int
     user_id: int

@@ -14,6 +14,7 @@ from backend.routers import (
     wordattachments,
     wordmeanings,
     words,
+    wordcategory,
 )
 from backend.schemas import VersionPublic
 
@@ -33,7 +34,9 @@ app.include_router(categories)
 app.include_router(references)
 app.include_router(wordattachments)
 app.include_router(attachments)
+app.include_router(wordcategory)
 app.include_router(users)
+
 
 app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
 
