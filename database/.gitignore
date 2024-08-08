@@ -1,3 +1,6 @@
 postgres/
-dados.csv
+csv/
 importa_dados.sql
+importacao.sql
+docker-entrypoint-initdb.d/
+postgresql.conf
