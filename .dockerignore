@@ -1,0 +1,11 @@
+/.venv
+/database
+/tests
+.env.dev
+.env.prod
+.gitignore
+database.dbml
+docker-compose.yml
+docker-compose-db.yml
+README.md
+TODO.md
