@@ -28,6 +28,8 @@ FROM base AS runner
 
 WORKDIR /app
 
+COPY docker-entrypoint.sh /
+
 COPY --from=builder /app /app
 COPY --from=builder /root/.local /root/.local
 
@@ -36,5 +38,7 @@ ENV PATH="/root/.local/bin:$PATH"
 EXPOSE 8080
 
 RUN poetry install
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["poetry", "run", "app"]
