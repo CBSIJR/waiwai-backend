@@ -26,9 +26,9 @@ RUN poetry install --only main
 
 FROM base AS runner
 
-WORKDIR /app
-
 COPY docker-entrypoint.sh /
+
+WORKDIR /app
 
 COPY --from=builder /app /app
 COPY --from=builder /root/.local /root/.local
