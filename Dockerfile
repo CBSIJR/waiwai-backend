@@ -26,9 +26,9 @@ RUN poetry install --only main
 
 FROM base AS runner
 
-COPY docker-entrypoint.sh /
-
 WORKDIR /app
+
+COPY docker-entrypoint.sh ../
 
 COPY --from=builder /app /app
 COPY --from=builder /root/.local /root/.local
@@ -36,6 +36,8 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH="/root/.local/bin:$PATH"
 
 EXPOSE 8080
+
+RUN chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
