@@ -3,6 +3,8 @@ services:
     build:
       context: ./database
     restart: always
+    networks:
+      - apidbmgr
     environment:
       POSTGRES_USER: <user>
       POSTGRES_PASSWORD: <password>
@@ -20,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.migration
+    networks:
+      - apidbmgr
     depends_on:
       db:
         condition: service_healthy
@@ -27,7 +31,7 @@ services:
       - ./.env.dev:/app/.env.dev
   proxy:
     build:
-      context: ./
+      context: ./nginx
     image: waiwai-proxy:latest
     ports:
       - 80:80
@@ -38,8 +42,9 @@ services:
         - ./nginx/conf.d:/etc/nginx/conf.d
         - ./nginx/certs:/etc/certs
     networks:
-      - api_proxy
-      - net_swarm
+      - proxy
+    depends_on:
+      - api
     deploy:
       replicas: 1
       resources:
@@ -55,7 +60,8 @@ services:
     image: waiwai-backend:latest
     restart: always
     networks:
-      - api_proxy
+      - proxy
+      - apidbmgr
     depends_on:
       db:
         condition: service_healthy

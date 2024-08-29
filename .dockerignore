@@ -1,5 +1,6 @@
 /.venv
 /database
+/nginx
 /tests
 .env.dev
 .env.prod

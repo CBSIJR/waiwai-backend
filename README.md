@@ -39,7 +39,13 @@ $ poetry install
 ```
 $ docker build -t aejunior/waiwai-backend:latest .
 $ docker network create -d bridge api_proxy
-$ 
+$ docker network create -d bridge api_db_migration
+```
+
+### Configurando certificado SSL 
+```shell
+$ docker exec -it <ID> sh
+$ certbot --nginx
 ```
 
 ### Configurando

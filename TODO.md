@@ -54,3 +54,5 @@
 - [ ] Para upload, deve-se criar arquivo temporário para escrevê-lo posteriormente na pasta pública.
 - [ ] Corrigir performance exportação de tabelas. URGENTE!
 - [ ] Incluir container NGINX para proxy e cacheamento das rotas de exportação. 
+- [ ] Configuração de cacheamento para rotas de exportação. [Aqui](https://www.uvicorn.org/deployment/#running-with-https). 
+- [ ] Ajuste no deploy para proxy NGINX. [Aqui](https://www.youtube.com/watch?v=ltwt2WcH_S8).
