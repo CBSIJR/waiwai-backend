@@ -38,6 +38,8 @@ $ poetry install
 
 ```
 $ docker build -t aejunior/waiwai-backend:latest .
+$ docker network create -d bridge api_proxy
+$ 
 ```
 
 ### Configurando

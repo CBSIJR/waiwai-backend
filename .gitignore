@@ -175,7 +175,9 @@ poetry.toml
 # LSP config static
 pyrightconfig.json
 docker-compose.yml
+docker-compose.dev.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 backend/static/*
+nginx/certs/*

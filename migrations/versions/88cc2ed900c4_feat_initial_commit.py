@@ -118,11 +118,11 @@ def upgrade() -> None:
                 sql_base varchar(200);
             begin
             version_timestamp := now();
-            if not exists(select id from waiwaitapota.public.version) then
-                insert into waiwaitapota.public.version (version, words, meanings, categories, "references", attachments, users)
+            if not exists(select id from pawana.public.version) then
+                insert into pawana.public.version (version, words, meanings, categories, "references", attachments, users)
                 select 1, version_timestamp, version_timestamp, version_timestamp, version_timestamp, version_timestamp, version_timestamp;
             end if;
-            sql_base = 'update waiwaitapota.public.version set "@version" = $1, version = vv.version+0.1 from waiwaitapota.public.version vv';
+            sql_base = 'update pawana.public.version set "@version" = $1, version = vv.version+0.1 from pawana.public.version vv';
             sql_base = replace(sql_base, '@version', TG_ARGV[0]);
             EXECUTE sql_base USING version_timestamp;
             RETURN NEW;
@@ -132,17 +132,17 @@ def upgrade() -> None:
     )
 
     triggers = [
-        'CREATE TRIGGER on_attachments AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."attachments"'
+        'CREATE TRIGGER on_attachments AFTER INSERT OR UPDATE OR DELETE ON pawana.public."attachments"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('attachments');",
-        'CREATE TRIGGER on_categories AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."categories"'
+        'CREATE TRIGGER on_categories AFTER INSERT OR UPDATE OR DELETE ON pawana.public."categories"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('categories');",
-        'CREATE TRIGGER on_words AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."words"'
+        'CREATE TRIGGER on_words AFTER INSERT OR UPDATE OR DELETE ON pawana.public."words"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('words');",
-        'CREATE TRIGGER on_users AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."users"'
+        'CREATE TRIGGER on_users AFTER INSERT OR UPDATE OR DELETE ON pawana.public."users"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('users');",
-        'CREATE TRIGGER on_references AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."references"'
+        'CREATE TRIGGER on_references AFTER INSERT OR UPDATE OR DELETE ON pawana.public."references"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('references');",
-        'CREATE TRIGGER on_meanings AFTER INSERT OR UPDATE OR DELETE ON waiwaitapota.public."meanings"'
+        'CREATE TRIGGER on_meanings AFTER INSERT OR UPDATE OR DELETE ON pawana.public."meanings"'
         "FOR EACH ROW EXECUTE PROCEDURE version_update('meanings');"]
     for trigger in triggers:
         op.execute(trigger)
