@@ -25,12 +25,12 @@ class JWTBearer(HTTPBearer):
                 )
             if not verify_jwt(credentials.credentials):
                 raise HTTPException(
-                    status_code=status.HTTP_401_FORBIDDEN,
+                    status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Token inválido ou expirado.",
                 )
             return credentials
         else:
             raise HTTPException(
-                status_code=status.HTTP_401_FORBIDDEN,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Código de autorização inválido.",
             )
