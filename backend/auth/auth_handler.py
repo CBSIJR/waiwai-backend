@@ -14,23 +14,23 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(
+        credentials: HTTPAuthorizationCredentials | None = await super(
             JWTBearer, self
         ).__call__(request)
         if credentials:
-            if not credentials.scheme == 'Bearer':
+            if not credentials.scheme == "Bearer":
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail='Esquema de autenticação inválido.',
+                    detail="Esquema de autenticação inválido.",
                 )
             if not verify_jwt(credentials.credentials):
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail='Token inválido ou expirado.',
+                    status_code=status.HTTP_401_FORBIDDEN,
+                    detail="Token inválido ou expirado.",
                 )
             return credentials
         else:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Código de autorização inválido.',
+                status_code=status.HTTP_401_FORBIDDEN,
+                detail="Código de autorização inválido.",
             )
