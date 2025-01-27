@@ -3,7 +3,7 @@ import logging
 import uuid
 from datetime import timedelta
 
-from jose import jwt
+import jwt
 from pydantic_settings import BaseSettings
 
 from backend.schemas import Subject

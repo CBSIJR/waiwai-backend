@@ -44,7 +44,7 @@
   - Fonema ainda não padronizado;
   - Remover até versão final
 - [ ] Checar se o significado pertence ao usuário e seu nível de autorização.
-- [ ] Trocar [python-jose](https://pypi.org/project/python-jose/) para [pyjwt](https://pypi.org/project/PyJWT/) ou [PyJwt512](https://pypi.org/project/PyJwt512/).
+- [X] Trocar [python-jose](https://pypi.org/project/python-jose/) para [pyjwt](https://pypi.org/project/PyJWT/) ou [PyJwt512](https://pypi.org/project/PyJwt512/).
 - [ ] Ajustar significado e palavra.
 - [X] Relacionar anexos com o usuário.
 - [ ] Checar em modelos validação para texto vazio e com espaços fora do corpo.

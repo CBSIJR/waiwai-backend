@@ -3,8 +3,8 @@ from typing import List, Union
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
-from jose import jwt
-from jose.jwt import JWTError
+import jwt
+from jwt import DecodeError as JWTError
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
