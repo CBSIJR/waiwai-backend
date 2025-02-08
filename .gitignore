@@ -182,3 +182,4 @@ docker-compose.dev.yml
 backend/static/*
 nginx/certs/*
 /backups
+/nginx/letsencrypt/*
