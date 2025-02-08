@@ -37,6 +37,7 @@
 # TODO
 - [X] Criar migration com atualização de tamanho da referência.
   - Migrations commitadas.
+- [X] Incluir backups diário ao banco de dados para evitar perda de dados.
 - [ ] Construir **raw text** para os campos de busca de palavra.
 - [X] Script para incluir significados das palavras.
 - [ ] Vericar validações com novos tamanhos de campos.
@@ -56,3 +57,4 @@
 - [ ] Incluir container NGINX para proxy e cacheamento das rotas de exportação. 
 - [ ] Configuração de cacheamento para rotas de exportação. [Aqui](https://www.uvicorn.org/deployment/#running-with-https). 
 - [ ] Ajuste no deploy para proxy NGINX. [Aqui](https://www.youtube.com/watch?v=ltwt2WcH_S8).
+- [ ] Alterar imagem do container nginx para [acme-companion](https://github.com/nginx-proxy/acme-companion).

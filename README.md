@@ -118,3 +118,16 @@ TODO: Add documentation
 ### API Endpoints
 
 TODO: Add endpoints
+
+### Configurando CRON para renovação de certificado
+
+Editar CRON tabs.
+```sh
+$ crontab -e
+```
+Incluir comando para renovação:
+```sh
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+0 */12 * * * root certbot -q renew --nginx
+```
