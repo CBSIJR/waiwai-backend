@@ -24,13 +24,13 @@ class UserCreate(BaseModel):
     def password_must_be_strong(cls, v: str):
         assert any(
             char.isdigit() for char in v
-        ), 'Deve conter pelo menos um dígito.'
+        ), 'Deve conter pelo menos um dígito numérico.'
         assert any(
             char.isupper() for char in v
-        ), 'Deve conter pelo menos uma letra minúscula.'
+        ), 'Deve conter pelo menos uma letra maiúscula.'
         assert any(
             char.islower() for char in v
-        ), 'Deve conter pelo menos uma letra maiúscula.'
+        ), 'Deve conter pelo menos uma letra minúscula.'
         return v
 
     @field_validator('first_name', 'last_name')

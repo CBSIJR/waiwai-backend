@@ -58,3 +58,4 @@
 - [ ] Configuração de cacheamento para rotas de exportação. [Aqui](https://www.uvicorn.org/deployment/#running-with-https). 
 - [ ] Ajuste no deploy para proxy NGINX. [Aqui](https://www.youtube.com/watch?v=ltwt2WcH_S8).
 - [ ] Alterar imagem do container nginx para [acme-companion](https://github.com/nginx-proxy/acme-companion).
+- [] Incluir verificação para vínculos já existentes (Atualizar índice em tabelas de relacionamentos)
