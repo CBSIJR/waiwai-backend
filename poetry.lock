@@ -470,7 +470,7 @@ files = [
 
 [package.dependencies]
 certifi = "*"
-h11 = ">=0.13,<0.15"
+h11 = "<0.16"
 
 [package.extras]
 asyncio = ["anyio (>=4.0,<5.0)"]
