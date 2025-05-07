@@ -22,6 +22,8 @@ class UserCreate(BaseModel):
 
     @field_validator('password', mode='before')
     def password_must_be_strong(cls, v: str):
+        assert all(char.isalnum() for char in v
+                   ), 'Deve conter apenas letras ou números.'
         assert any(
             char.isdigit() for char in v
         ), 'Deve conter pelo menos um dígito numérico.'
@@ -35,7 +37,7 @@ class UserCreate(BaseModel):
 
     @field_validator('first_name', 'last_name')
     def first_name_alphanumeric(cls, v: str):
-        assert v.isalnum(), 'Deve ser alfanumérico.'
+        assert all(char.isalpha() for char in v), 'Deve conter apenas letras.'
         return v.capitalize()
 
 
