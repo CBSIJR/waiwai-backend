@@ -47,7 +47,7 @@ exclude = ['.venv', 'migrations']
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.1"  # versão inicial
+version = "0.1.0"  # versão inicial
 version_files = ["pyproject.toml"]
 tag_format = "v$version"
 
