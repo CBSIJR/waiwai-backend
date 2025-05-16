@@ -7,11 +7,14 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Words
 from backend.schemas import (
-    Message,
-    Params,
+    BaseResponse,
+    BaseResponsePage,
+    ErrorResponse,
+    ParamsPageQuery,
     PermissionType,
     UserAuth,
     WordCreate,
+    WordDetails,
     WordExport,
     WordPublic,
     WordUpdate,
@@ -25,28 +28,30 @@ security = JWTBearer()
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=List[WordPublic]
+    '/',
+    status_code=status.HTTP_200_OK,
+    response_model=BaseResponsePage[List[WordPublic]],
 )
 async def list_words(
-    params: Params = Depends(),
+    params: ParamsPageQuery = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
     words = await Words(session).get_list(params)
-    return words
+    total = await Words(session).count(params)
+    return BaseResponsePage[WordPublic](data=words, total_items=total)
 
 
 @router.get(
     '/{word_id}',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=WordPublic,
+    responses={'404': {'model': ErrorResponse}},
+    response_model=BaseResponse[WordDetails],
 )
 async def get_word(
     word_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     word = await Words(session).get_by_id(word_id)
-
-    return word
+    return BaseResponse[WordDetails](data=word)
 
 
 @router.post(
@@ -56,7 +61,10 @@ async def get_word(
         Depends(security),
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
-    responses={'403': {'model': Message}, '409': {'model': Message}},
+    responses={
+        '403': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
+    },
 )
 async def create_word(
     word: WordCreate,
@@ -74,9 +82,9 @@ async def create_word(
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
     },
 )
 async def update_word(
@@ -96,9 +104,9 @@ async def update_word(
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
     },
 )
 async def delete_word(

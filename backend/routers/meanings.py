@@ -7,6 +7,8 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
+    BaseResponse,
+    ErrorResponse,
     MeaningExport,
     MeaningPublic,
     MeaningUpdate,
@@ -25,14 +27,14 @@ security = JWTBearer()
 @router.get(
     '/{meaning_id}',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=MeaningPublic,
+    responses={'404': {'model': ErrorResponse}},
+    response_model=BaseResponse[MeaningPublic],
 )
 async def get_meaning(
     meaning_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     meaning = await Meanings(session).get_by_id(meaning_id)
-    return meaning
+    return BaseResponse[MeaningPublic](data=meaning)
 
 
 @router.put(
@@ -43,9 +45,9 @@ async def get_meaning(
         Authorization([PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
     },
 )
 async def update_meaning(
@@ -64,9 +66,8 @@ async def update_meaning(
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
     },
 )
 async def delete_meaning(

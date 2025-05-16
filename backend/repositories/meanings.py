@@ -1,12 +1,12 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
-from sqlalchemy import select, or_, func
-
+from fastapi import status
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
 from backend.schemas import (
+    CustomHTTPException,
     MeaningCreate,
     MeaningUpdate,
     ParamsMeaning,
@@ -31,7 +31,16 @@ class Meanings(Repository):
             search = '%{}%'.format(params.q)
             statement = (
                 select(Meaning)
-                .where(or_(func.upper(Meaning.meaning_pt).like(func.upper(search)), func.upper(Meaning.meaning_ww).like(func.upper(search))))
+                .where(
+                    or_(
+                        func.upper(Meaning.meaning_pt).like(
+                            func.upper(search)
+                        ),
+                        func.upper(Meaning.meaning_ww).like(
+                            func.upper(search)
+                        ),
+                    )
+                )
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
@@ -68,7 +77,7 @@ class Meanings(Repository):
         result = await self.session.execute(statement)
         meaning = result.scalar_one_or_none()
         if not meaning:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Significado: ID {entity_id} não encontrado.',
             )
@@ -79,10 +88,10 @@ class Meanings(Repository):
     ) -> None:
         meaning_db = await self.get_by_id(entity_id)
 
-        meaning_db.meaning_pt = entity.meaning_pt,
-        meaning_db.meaning_ww = entity.meaning_ww,
-        meaning_db.comment_pt = entity.comment_pt,
-        meaning_db.comment_ww = entity.comment_ww,
+        meaning_db.meaning_pt = (entity.meaning_pt,)
+        meaning_db.meaning_ww = (entity.meaning_ww,)
+        meaning_db.comment_pt = (entity.comment_pt,)
+        meaning_db.comment_ww = (entity.comment_ww,)
 
         self.session.add(meaning_db)
         await self.session.commit()
@@ -95,7 +104,7 @@ class Meanings(Repository):
             meaning_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Usuário sem permissão.',
             )
@@ -113,7 +122,8 @@ class Meanings(Repository):
             statement = (
                 select(Meaning)
                 .filter(
-                    func.upper(Meaning.meaning).like(func.upper(search)), Meaning.word_id == word_id
+                    func.upper(Meaning.meaning).like(func.upper(search)),
+                    Meaning.word_id == word_id,
                 )
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
@@ -135,3 +145,8 @@ class Meanings(Repository):
         result = await self.session.execute(statement)
         meanings = result.scalars().all()
         return meanings
+
+    async def count(self) -> int:
+        statement = select(func.count()).select_from(Meaning)
+        result = await self.session.execute(statement)
+        return result.scalar_one()

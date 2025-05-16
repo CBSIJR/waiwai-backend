@@ -1,11 +1,16 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
-from sqlalchemy import select, or_, func
+from fastapi import status
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Reference
-from backend.schemas import ParamsReference, ReferenceCreate, ReferenceUpdate
+from backend.schemas import (
+    CustomHTTPException,
+    ParamsReference,
+    ReferenceCreate,
+    ReferenceUpdate,
+)
 
 from .base import Repository
 
@@ -22,7 +27,14 @@ class References(Repository):
             search = '%{}%'.format(params.q)
             statement = (
                 select(Reference)
-                .where(or_(func.upper(Reference.reference).like(func.upper(search)), func.upper(Reference.authors).like(func.upper(search))))
+                .where(
+                    or_(
+                        func.upper(Reference.reference).like(
+                            func.upper(search)
+                        ),
+                        func.upper(Reference.authors).like(func.upper(search)),
+                    )
+                )
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
@@ -41,7 +53,7 @@ class References(Repository):
         reference_db = await self.get_by_reference(entity.reference)
 
         if reference_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Referência já registrada.',
             )
@@ -62,7 +74,7 @@ class References(Repository):
         result = await self.session.execute(statement)
         reference = result.scalar_one_or_none()
         if not reference:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Referência: ID {entity_id} não encontrado.',
             )
@@ -86,7 +98,7 @@ class References(Repository):
         reference_exists = await self.get_by_reference(entity.reference)
 
         if reference_exists and entity_id != reference_exists.id:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Referência já registrada.',
             )
@@ -111,3 +123,8 @@ class References(Repository):
         result = await self.session.execute(statement)
         references = result.scalars().all()
         return references
+
+    async def count(self) -> int:
+        statement = select(func.count()).select_from(Reference)
+        result = await self.session.execute(statement)
+        return result.scalar_one()

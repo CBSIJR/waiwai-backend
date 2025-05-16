@@ -5,7 +5,17 @@ from .attachment import (
     AttachmentPublic,
     AttachmentUpdate,
 )
-from .base import Base, Message, PermissionType, WordCategoryExport
+from .base import (
+    Base,
+    BaseResponse,
+    BaseResponsePage,
+    CustomHTTPException,
+    ErrorResponse,
+    ErrorResponseMessage,
+    Message,
+    PermissionType,
+    WordCategoryExport,
+)
 from .category import (
     Category,
     CategoryCreate,
@@ -25,6 +35,7 @@ from .params import (
     ParamsAttachments,
     ParamsCategory,
     ParamsMeaning,
+    ParamsPageQuery,
     ParamsReference,
 )
 from .references import (
@@ -45,4 +56,11 @@ from .user import (
     UserUpdate,
 )
 from .version import VersionPublic
-from .word import Word, WordCreate, WordExport, WordPublic, WordUpdate
+from .word import (
+    Word,
+    WordCreate,
+    WordDetails,
+    WordExport,
+    WordPublic,
+    WordUpdate,
+)

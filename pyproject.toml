@@ -32,6 +32,7 @@ blue = "^0.9.1"
 ruff = "^0.1.13"
 httpx = "^0.26.0"
 isort = "^5.13.2"
+commitizen = "^4.7.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -43,6 +44,12 @@ exclude = ['.venv', 'migrations']
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.1"  # versão inicial
+version_files = ["pyproject.toml"]
+tag_format = "v$version"
 
 [tool.isort]
 profile = "black"
@@ -61,3 +68,4 @@ format = 'blue .  && isort .'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=backend -vv'
 post_test = 'coverage html'
+release = "cz bump"

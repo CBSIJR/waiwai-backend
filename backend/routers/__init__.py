@@ -5,6 +5,6 @@ from .meanings import router as meanings
 from .references import router as references
 from .users import router as users
 from .wordattachments import router as wordattachments
+from .wordcategory import router as wordcategory
 from .wordmeanings import router as wordmeanings
 from .words import router as words
-from .wordcategory import router as wordcategory

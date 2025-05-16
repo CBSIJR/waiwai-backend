@@ -8,8 +8,8 @@ class Category(Base):
     description: str
 
 
-class CategoryPublic(Category):
-    pass
+class CategoryPublic(Base):
+    category: str
 
 
 class CategoryExport(Category):

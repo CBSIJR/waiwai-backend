@@ -1,7 +1,7 @@
 from os import remove
 from typing import Sequence
 
-from fastapi import HTTPException, status
+from fastapi import status
 from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +9,7 @@ from backend.models import Attachment
 from backend.schemas import (
     AttachmentCreate,
     AttachmentUpdate,
+    CustomHTTPException,
     Params,
     ParamsAttachments,
     PermissionType,
@@ -33,7 +34,7 @@ class Attachments(Repository):
     async def create(self, entity: AttachmentCreate) -> None:
         if await self.count_by_word_id(entity.word_id) >= 10:
             remove(entity.filedir)
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=f'Palavra ID {entity.word_id}: O anexo excede o limite de 10 anexos por palavra.',
             )
@@ -57,7 +58,7 @@ class Attachments(Repository):
         result = await self.session.execute(statement)
         attachment = result.scalar_one_or_none()
         if not attachment:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Anexo: ID {entity_id} não encontrado.',
             )
@@ -75,7 +76,7 @@ class Attachments(Repository):
             attachment_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Usuário sem permissão.',
             )
@@ -113,3 +114,8 @@ class Attachments(Repository):
         result = await self.session.execute(statement)
         attachments = result.fetchall()
         return [attachment[0] for attachment in attachments]
+
+    async def count(self) -> int:
+        statement = select(func.count()).select_from(Attachment)
+        result = await self.session.execute(statement)
+        return result.scalar_one()

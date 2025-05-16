@@ -22,8 +22,10 @@ class UserCreate(BaseModel):
 
     @field_validator('password', mode='before')
     def password_must_be_strong(cls, v: str):
-        assert all(char.isalnum() for char in v
-                   ), 'Deve conter apenas letras ou números.'
+        assert isinstance(v, str), 'A senha deve ser uma string.'
+        assert all(
+            char.isprintable() for char in v
+        ), 'A senha contém caracteres inválidos.'
         assert any(
             char.isdigit() for char in v
         ), 'Deve conter pelo menos um dígito numérico.'
@@ -33,6 +35,9 @@ class UserCreate(BaseModel):
         assert any(
             char.islower() for char in v
         ), 'Deve conter pelo menos uma letra minúscula.'
+        assert any(
+            not char.isalnum() for char in v
+        ), 'Deve conter pelo menos um caractere especial.'
         return v
 
     @field_validator('first_name', 'last_name')

@@ -1,9 +1,9 @@
 import time
 from typing import List, Union
 
-from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials
 import jwt
+from fastapi import Depends, Request, status
+from fastapi.security import HTTPAuthorizationCredentials
 from jwt import DecodeError as JWTError
 from passlib.context import CryptContext
 from sqlalchemy import select
@@ -11,7 +11,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.configs import Settings, get_async_session
 from backend.models import User
-from backend.schemas import PermissionType, Subject, Token, TokenData, UserAuth
+from backend.schemas import (
+    CustomHTTPException,
+    PermissionType,
+    Subject,
+    Token,
+    TokenData,
+    UserAuth,
+)
 from backend.utils import create_access_token, create_refresh_token
 
 from .auth_handler import JWTBearer
@@ -65,7 +72,7 @@ async def get_current_user(
     session: AsyncSession = Depends(get_async_session),
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> UserAuth:
-    credentials_exception = HTTPException(
+    credentials_exception = CustomHTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Não foi possível validar credenciais.',
         headers={'WWW-Authenticate': 'Bearer'},
@@ -111,7 +118,7 @@ class AuthorizationDependency:
     ) -> UserAuth:
 
         if user.permission not in self.get_permissions():
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Usuário sem permissão.',
             )

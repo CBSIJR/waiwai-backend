@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 else:
     Meaning = 'Meaning'
 
-from sqlalchemy import String, Integer
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base

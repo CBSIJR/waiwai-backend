@@ -1,7 +1,8 @@
-from fastapi import HTTPException, Request, status
+from fastapi import Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.auth import auth
+from backend.schemas import CustomHTTPException
 
 
 # https://fastapi.tiangolo.com/reference/security/#fastapi.security.HTTPBearer
@@ -18,19 +19,19 @@ class JWTBearer(HTTPBearer):
             JWTBearer, self
         ).__call__(request)
         if credentials:
-            if not credentials.scheme == "Bearer":
-                raise HTTPException(
+            if not credentials.scheme == 'Bearer':
+                raise CustomHTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Esquema de autenticação inválido.",
+                    detail='Esquema de autenticação inválido.',
                 )
             if not verify_jwt(credentials.credentials):
-                raise HTTPException(
+                raise CustomHTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Token inválido ou expirado.",
+                    detail='Token inválido ou expirado.',
                 )
             return credentials
         else:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Código de autorização inválido.",
+                detail='Código de autorização inválido.',
             )

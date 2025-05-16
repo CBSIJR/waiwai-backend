@@ -1,9 +1,10 @@
 import re
+from typing import List, Union
 from uuid import uuid4
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile, status
 
-from backend.schemas import AttachmentData
+from backend.schemas import AttachmentData, CustomHTTPException
 from backend.utils import get_logger
 
 
@@ -13,30 +14,32 @@ class Local:
         return await self.upload(file=file)
 
     @staticmethod
-    async def upload(*, file: UploadFile) -> AttachmentData:
+    async def upload(
+        *, file: Union[UploadFile, List[UploadFile]]
+    ) -> AttachmentData:
         file_type = file.content_type
         file_size = file.size
         file_name = re.sub(r'[^\w.]', '_', file.filename.lower())
         file_uuid = uuid4()
         if file is None:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Arquivo não encontrado.',
             )
         if not file_type or not (
             file_type.startswith('audio') or file_type.startswith('image')
         ):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Tipo de arquivo inválido.',
             )
         if file_size == 0:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Arquivo inválido.',
             )
         if len(file_name) < 10 or len(file_name) > 200:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail='Nome de arquivo inválido.',
             )
@@ -58,7 +61,7 @@ class Local:
             )
 
         except Exception as e:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f'Erro ao salvar o arquivo: {str(e)}.',
             )

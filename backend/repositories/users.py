@@ -1,12 +1,19 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
+from fastapi import status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth import get_password_hash, sign_jwt, verify_password
 from backend.models import User
-from backend.schemas import Params, Subject, Token, UserCreate, UserLogin
+from backend.schemas import (
+    CustomHTTPException,
+    Params,
+    Subject,
+    Token,
+    UserCreate,
+    UserLogin,
+)
 
 from .base import Repository
 
@@ -30,7 +37,7 @@ class Users(Repository):
         user_db = await self.get_by_email(entity.email)
 
         if user_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Email já registrado.',
             )
@@ -47,7 +54,13 @@ class Users(Repository):
 
         self.session.add(user_db)
         await self.session.commit()
-        return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))
+        return sign_jwt(
+            Subject(
+                name=user_db.full_name,
+                email=user_db.email,
+                permission=user_db.permission,
+            )
+        )
 
     async def get_by_id(self, entity_id: int) -> User | None:
         statement = select(User).filter(User.id == entity_id)
@@ -66,13 +79,13 @@ class Users(Repository):
     ) -> None:
         user_db = await self.get_by_id(entity_id)
         if user_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail='Não encontrado.'
             )
 
         user_db = self.get_by_email(entity.email)
         if user_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Email já registrado.',
             )
@@ -95,18 +108,24 @@ class Users(Repository):
     async def create_jwt(self, entity: UserLogin) -> Token:
         user_db = await self.get_by_email(entity.email)
         if not user_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Email ou senha incorreto.',
             )
 
         if not verify_password(entity.password, user_db.password):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Email ou senha incorreto.',
             )
 
-        return sign_jwt(Subject(name=user_db.full_name, email=user_db.email))
+        return sign_jwt(
+            Subject(
+                name=user_db.full_name,
+                email=user_db.email,
+                permission=user_db.permission,
+            )
+        )
 
     async def all(self) -> Sequence[User]:
         statement = select(User)

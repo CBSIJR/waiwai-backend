@@ -1,11 +1,16 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
-from sqlalchemy import select, func
+from fastapi import status
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Category
-from backend.schemas import CategoryCreate, CategoryUpdate, ParamsCategory
+from backend.schemas import (
+    CategoryCreate,
+    CategoryUpdate,
+    CustomHTTPException,
+    ParamsCategory,
+)
 
 from .base import Repository
 
@@ -40,7 +45,7 @@ class Categories(Repository):
         category_db = await self.get_by_category(entity.category)
 
         if category_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Categoria já registrada.',
             )
@@ -58,7 +63,7 @@ class Categories(Repository):
         result = await self.session.execute(statement)
         category = result.scalar_one_or_none()
         if not category:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Categoria: ID {entity_id} não encontrado.',
             )
@@ -80,7 +85,7 @@ class Categories(Repository):
         category_exists = await self.get_by_category(entity.category)
 
         if category_exists and category_exists.id != entity_id:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Categoria já registrada.',
             )
@@ -102,3 +107,8 @@ class Categories(Repository):
         result = await self.session.execute(statement)
         categories = result.scalars().all()
         return categories
+
+    async def count(self) -> int:
+        statement = select(func.count()).select_from(Category)
+        result = await self.session.execute(statement)
+        return result.scalar_one()

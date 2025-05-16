@@ -7,6 +7,9 @@ from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import References
 from backend.schemas import (
+    BaseResponse,
+    BaseResponsePage,
+    ErrorResponse,
     Message,
     ParamsReference,
     PermissionType,
@@ -24,27 +27,32 @@ security = JWTBearer()
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=List[ReferencePublic]
+    '/',
+    status_code=status.HTTP_200_OK,
+    response_model=BaseResponsePage[List[ReferencePublic]],
 )
 async def list_references(
     params: ParamsReference = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
     references = await References(session).get_list(params)
-    return references
+    total = await References(session).count()
+    return BaseResponsePage[ReferencePublic](
+        data=references, total_items=total
+    )
 
 
 @router.get(
     '/{reference_id}',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=ReferencePublic,
+    responses={'404': {'model': ErrorResponse}},
+    response_model=BaseResponse[ReferencePublic],
 )
 async def get_reference(
     reference_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     reference = await References(session).get_by_id(reference_id)
-    return reference
+    return BaseResponse[ReferencePublic](data=reference)
 
 
 @router.post(
@@ -54,7 +62,10 @@ async def get_reference(
         Depends(security),
         Authorization([PermissionType.ADMIN]),
     ],
-    responses={'403': {'model': Message}, '409': {'model': Message}},
+    responses={
+        '403': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
+    },
 )
 async def create_reference(
     reference: ReferenceCreate,
@@ -71,9 +82,9 @@ async def create_reference(
         Authorization([PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
     },
 )
 async def update_reference(
@@ -92,9 +103,8 @@ async def update_reference(
         Authorization([PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
     },
 )
 async def delete_reference(

@@ -1,13 +1,14 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
-from sqlalchemy import select
+from fastapi import status
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from backend.models import WordCategory, Word
+from backend.models import Meaning, Word, WordCategory
 from backend.schemas import (
-    Params,
+    CustomHTTPException,
+    ParamsPageQuery,
     PermissionType,
     UserAuth,
     WordCreate,
@@ -26,18 +27,31 @@ class Words(Repository):
         self.session: AsyncSession = session
 
     async def get_list(
-        self, params: Params, user_id: int | None = None
+        self, params: ParamsPageQuery, user_id: int | None = None
     ) -> Sequence[Word]:
         statement = (
             select(Word)
             .options(joinedload(Word.categories))
             .options(joinedload(Word.meanings))
-            .offset((params.page - 1) * params.page_size)
-            .limit(params.page_size)
             .order_by(Word.word)
         )
         if user_id:
             statement = statement.where(Word.user_id == user_id)
+        if params.q:
+            search_filter = f'%{params.q.lower()}%'
+            statement = statement.where(
+                or_(
+                    func.lower(Word.word).ilike(search_filter),
+                    func.lower(Meaning.meaning_pt).ilike(search_filter),
+                    func.lower(Meaning.meaning_ww).ilike(search_filter),
+                    func.lower(Meaning.comment_pt).ilike(search_filter),
+                    func.lower(Meaning.comment_ww).ilike(search_filter),
+                )
+            )
+        statement = statement.join(Word.meanings)
+        statement = statement.offset(
+            (params.page - 1) * params.page_size
+        ).limit(params.page_size)
 
         result = await self.session.execute(statement)
         words = result.unique().scalars().all()
@@ -46,7 +60,7 @@ class Words(Repository):
     async def create(self, entity: WordCreate, user: UserAuth) -> None:
         word_db = await self.get_by_word(entity.word)
         if word_db:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Palavra já registrada.',
             )
@@ -72,12 +86,13 @@ class Words(Repository):
             select(Word)
             .filter(Word.id == entity_id)
             .options(joinedload(Word.categories))
-            .options(joinedload(Word.meanings))
+            .options(joinedload(Word.meanings).joinedload(Meaning.reference))
+            .options(joinedload(Word.attachments))
         )
         result = await self.session.execute(statement)
         word = result.unique().scalar_one_or_none()
         if not word:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Palavra: ID {entity_id} não encontrado.',
             )
@@ -98,7 +113,7 @@ class Words(Repository):
             word_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Usuário sem permissão.',
             )
@@ -106,7 +121,7 @@ class Words(Repository):
         word_exists = await self.get_by_word(entity.word)
 
         if word_exists and word_exists.id != entity_id:
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail='Palavra já registrada.',
             )
@@ -131,7 +146,7 @@ class Words(Repository):
             word_db.user_id != user.id
             and user.permission != PermissionType.ADMIN
         ):
-            raise HTTPException(
+            raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Usuário sem permissão.',
             )
@@ -151,3 +166,32 @@ class Words(Repository):
         word_categories = result.all()
         return word_categories
 
+    async def count(self, params: ParamsPageQuery) -> int:
+        if not params.q:
+            statement = select(func.count()).select_from(Word)
+        else:
+            statement = (
+                select(func.count(func.distinct(Word.id)))
+                .select_from(Word)
+                .join(Word.meanings)
+                .where(
+                    or_(
+                        func.lower(Word.word).ilike(f'%{params.q.lower()}%'),
+                        func.lower(Meaning.meaning_pt).ilike(
+                            f'%{params.q.lower()}%'
+                        ),
+                        func.lower(Meaning.meaning_ww).ilike(
+                            f'%{params.q.lower()}%'
+                        ),
+                        func.lower(Meaning.comment_pt).ilike(
+                            f'%{params.q.lower()}%'
+                        ),
+                        func.lower(Meaning.comment_ww).ilike(
+                            f'%{params.q.lower()}%'
+                        ),
+                    )
+                )
+            )
+
+        result = await self.session.execute(statement)
+        return result.scalar_one()

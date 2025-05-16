@@ -7,9 +7,6 @@ from backend.configs import get_async_session
 from backend.repositories import Words
 from backend.schemas import WordCategoryExport
 
-from logging import Logger
-from backend.utils import get_logger
-
 router = APIRouter(
     prefix='/wordcategories',
     tags=['Palavras Categorias'],

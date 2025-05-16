@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +10,7 @@ from backend.schemas import (
     AttachmentCreate,
     AttachmentData,
     AttachmentPublic,
+    BaseResponsePage,
     ParamsAttachments,
     PermissionType,
     UserAuth,
@@ -24,7 +27,9 @@ router = APIRouter(
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=list[AttachmentPublic]
+    '/',
+    status_code=status.HTTP_200_OK,
+    response_model=BaseResponsePage[List[AttachmentPublic]],
 )
 async def list_meanings(
     word_id: int,
@@ -32,7 +37,8 @@ async def list_meanings(
     session: AsyncSession = Depends(get_async_session),
 ):
     meanings = await Attachments(session).get_list_by_word_id(word_id, params)
-    return meanings
+    total = await Attachments(session).count()
+    return BaseResponsePage[AttachmentPublic](data=meanings, total_items=total)
 
 
 @router.post(

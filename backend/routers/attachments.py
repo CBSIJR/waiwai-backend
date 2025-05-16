@@ -9,7 +9,7 @@ from backend.repositories import Attachments
 from backend.schemas import (
     AttachmentExport,
     AttachmentPublic,
-    Message,
+    ErrorResponse,
     PermissionType,
     UserAuth,
 )
@@ -24,7 +24,7 @@ security = JWTBearer()
 @router.get(
     '/{attachment_id}',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
+    responses={'404': {'model': ErrorResponse}},
     response_model=AttachmentPublic,
 )
 async def get_meaning(
@@ -42,9 +42,8 @@ async def get_meaning(
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
     },
 )
 async def delete_meaning(

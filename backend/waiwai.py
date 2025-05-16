@@ -13,9 +13,9 @@ from backend.routers import (
     references,
     users,
     wordattachments,
+    wordcategory,
     wordmeanings,
     words,
-    wordcategory,
 )
 from backend.schemas import VersionPublic
 
@@ -23,17 +23,17 @@ settings = Settings()
 
 app = FastAPI(
     redoc_url=None,
-    title="WaiWaiTapota API",
-    summary="Serviço de API do Dicionário WaiWai - UFOPA",
+    title='WaiWaiTapota API',
+    summary='Serviço de API do Dicionário WaiWai - UFOPA',
 )
 
-origins = ["localhost", "*.pawana.com.br"]
+origins = ['localhost', '*.pawana.com.br']
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_headers=["*"],
+    allow_headers=['*'],
 )
 
 app.include_router(auth)
@@ -48,19 +48,19 @@ app.include_router(wordcategory)
 app.include_router(users)
 
 
-app.mount("/uploads", StaticFiles(directory="backend/static"), "static")
+app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
 
 
-@app.get("/", tags=["Ping"])
+@app.get('/', tags=['Ping'])
 def health() -> dict:
-    return {"detail": "hello world!"}
+    return {'detail': {'msg': 'hello world!'}}
 
 
 @app.get(
-    "/version",
+    '/version',
     status_code=status.HTTP_200_OK,
     response_model=VersionPublic,
-    tags=["Versão"],
+    tags=['Versão'],
 )
 async def get_version(session: AsyncSession = Depends(get_async_session)):
     version = await Versions(session).first()

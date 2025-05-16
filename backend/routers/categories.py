@@ -7,10 +7,13 @@ from backend.auth import Authorization, JWTBearer
 from backend.configs import get_async_session
 from backend.repositories import Categories
 from backend.schemas import (
+    BaseResponse,
+    BaseResponsePage,
     CategoryCreate,
     CategoryExport,
     CategoryPublic,
     CategoryUpdate,
+    ErrorResponse,
     Message,
     ParamsCategory,
     PermissionType,
@@ -24,27 +27,30 @@ security = JWTBearer()
 
 
 @router.get(
-    '/', status_code=status.HTTP_200_OK, response_model=list[CategoryPublic]
+    '/',
+    status_code=status.HTTP_200_OK,
+    response_model=BaseResponsePage[List[CategoryPublic]],
 )
 async def list_categories(
     params: ParamsCategory = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
     categories = await Categories(session).get_list(params)
-    return categories
+    total = await Categories(session).count()
+    return BaseResponsePage[CategoryPublic](data=categories, total_items=total)
 
 
 @router.get(
     '/{category_id}',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=CategoryPublic,
+    responses={'404': {'model': ErrorResponse}},
+    response_model=BaseResponse[CategoryPublic],
 )
 async def get_category(
     category_id: int, session: AsyncSession = Depends(get_async_session)
 ):
     category = await Categories(session).get_by_id(category_id)
-    return category
+    return BaseResponse[CategoryPublic](data=category)
 
 
 @router.post(
@@ -54,7 +60,10 @@ async def get_category(
         Depends(security),
         Authorization([PermissionType.ADMIN]),
     ],
-    responses={'403': {'model': Message}, '409': {'model': Message}},
+    responses={
+        '403': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
+    },
 )
 async def create_category(
     category: CategoryCreate,
@@ -71,9 +80,9 @@ async def create_category(
         Authorization([PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+        '409': {'model': ErrorResponse},
     },
 )
 async def update_category(
@@ -92,9 +101,8 @@ async def update_category(
         Authorization([PermissionType.ADMIN]),
     ],
     responses={
-        '403': {'model': Message},
-        '404': {'model': Message},
-        '409': {'model': Message},
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
     },
 )
 async def delete_category(
