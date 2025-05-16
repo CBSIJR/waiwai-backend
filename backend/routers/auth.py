@@ -40,11 +40,11 @@ async def signup(
 @router.post(
     '/signin',
     status_code=status.HTTP_200_OK,
-    response_model=Token,
-    responses={401: {'model': Message}},
+    response_model=BaseResponse[Token],
+    responses={401: {'model': ErrorResponse}},
 )
 async def signin(
     user: UserLogin, session: AsyncSession = Depends(get_async_session)
 ):
     result = await Users(session).create_jwt(user)
-    return result
+    return BaseResponse(data=result)
