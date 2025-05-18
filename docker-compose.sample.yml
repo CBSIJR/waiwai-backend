@@ -22,6 +22,7 @@ services:
       - ./database/postgres:/var/lib/postgresql/data
       - ./database/postgresql.conf:/var/lib/postgresql/pgdata/postgresql.conf
       - ./backups:/backups
+      - ./backend/static:/app/backend/static
   migration:
     build: 
       context: .
