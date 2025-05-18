@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "backend"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["aejunior <user.emerson@outlook.com>"]
 readme = "README.md"
@@ -47,7 +47,7 @@ exclude = ['.venv', 'migrations']
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"  # versão inicial
+version = "0.2.0"  # versão inicial
 version_files = ["pyproject.toml"]
 tag_format = "v$version"
 
