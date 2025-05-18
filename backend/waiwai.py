@@ -1,6 +1,5 @@
 from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.configs import Settings, get_async_session
@@ -11,6 +10,7 @@ from backend.routers import (
     categories,
     meanings,
     references,
+    root,
     users,
     wordattachments,
     wordcategory,
@@ -33,10 +33,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=['*'],
     allow_headers=['*'],
 )
 
+app.include_router(root)
 app.include_router(auth)
 app.include_router(words)
 app.include_router(wordmeanings)
@@ -49,7 +50,7 @@ app.include_router(wordcategory)
 app.include_router(users)
 
 
-app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
+# app.mount('/uploads', StaticFiles(directory='backend/static'), 'static')
 
 
 @app.get('/', tags=['Ping'])

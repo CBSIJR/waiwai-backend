@@ -3,6 +3,7 @@ from .auth import router as auth
 from .categories import router as categories
 from .meanings import router as meanings
 from .references import router as references
+from .root import router as root
 from .users import router as users
 from .wordattachments import router as wordattachments
 from .wordcategory import router as wordcategory

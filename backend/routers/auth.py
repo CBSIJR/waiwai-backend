@@ -6,7 +6,6 @@ from backend.repositories import Users
 from backend.schemas import (
     BaseResponse,
     ErrorResponse,
-    Message,
     Token,
     UserCreate,
     UserLogin,
