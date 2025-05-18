@@ -52,6 +52,8 @@ class Attachments(Repository):
         self.session.add(attachment_db)
         await self.session.commit()
         await self.session.refresh(attachment_db)
+        attachment_db.url = '/uploads/'+str(attachment_db.id)
+        await self.session.commit()
 
     async def get_by_id(self, entity_id: int) -> Attachment:
         statement = select(Attachment).filter(Attachment.id == entity_id)

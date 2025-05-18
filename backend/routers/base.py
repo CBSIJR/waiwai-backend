@@ -56,7 +56,7 @@ class Local:
                 uuid=file_uuid,
                 filename=filename,
                 filedir=filedir,
-                url=f'/uploads{filename}',
+                url=f'',
                 content_type=file.content_type,
             )
 

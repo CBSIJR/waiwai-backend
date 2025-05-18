@@ -60,3 +60,4 @@
 - [ ] Alterar imagem do container nginx para [acme-companion](https://github.com/nginx-proxy/acme-companion).
 - [ ] Incluir verificação para vínculos já existentes (Atualizar índice em tabelas de relacionamentos)
 - [ ] Cache (Redis) para rotas com exportação completa.
+- [ ] Verificar erro ao refazer requisição com token expirado.
