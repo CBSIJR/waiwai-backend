@@ -33,6 +33,7 @@ class Words(Repository):
             select(Word)
             .options(joinedload(Word.categories))
             .options(joinedload(Word.meanings))
+            .group_by(Word.id)
             .order_by(Word.word)
         )
         if user_id:
