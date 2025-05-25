@@ -27,7 +27,7 @@ app = FastAPI(
     summary='Serviço de API do Dicionário WaiWai - UFOPA',
 )
 
-origins = ['http://localhost:3000', '*.pawana.com.br']
+origins = ['http://localhost:3000', '*.pawana.com.br', 'https://dicionario.pawana.com.br']
 
 app.add_middleware(
     CORSMiddleware,
