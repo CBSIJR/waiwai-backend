@@ -30,7 +30,7 @@ app = FastAPI(
 origins = ['http://localhost:3000']
 
 app.add_middleware(
-    # CORSMiddleware,
+    CORSMiddleware,
     allow_origins=origins,
     allow_origin_regex=r"^https?://(?:.+\.)?pawana\.com\.br$",
     allow_credentials=True,
