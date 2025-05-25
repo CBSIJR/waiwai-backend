@@ -6,7 +6,7 @@ DATE=$(date +%Y%m%d%H%M%S)
 BACKUP_FILE="$BACKUP_DIR/$POSTGRES_DB_${DATE}.tar.gz"
 
 # Realizar o backup
-PGPASSWORD=$POSTGRES_PASSWORD pg_dump $POSTGRES_DB -U $POSTGRES_USER -F t > $BACKUP_FILE
+PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U "$POSTGRES_USER" -F t "$POSTGRES_DB" > "$BACKUP_FILE"
 
 # Verificar se o backup foi bem-sucedido
 if [ $? -eq 0 ]; then
