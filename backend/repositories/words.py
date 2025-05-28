@@ -58,7 +58,7 @@ class Words(Repository):
         words = result.unique().scalars().all()
         return words
 
-    async def create(self, entity: WordCreate, user: UserAuth) -> None:
+    async def create(self, entity: WordCreate, user: UserAuth) -> Word:
         word_db = await self.get_by_word(entity.word)
         if word_db:
             raise CustomHTTPException(
@@ -81,6 +81,8 @@ class Words(Repository):
 
         self.session.add(word_db)
         await self.session.commit()
+        await self.session.refresh(word_db)
+        return word_db
 
     async def get_by_id(self, entity_id: int) -> Word:
         statement = (

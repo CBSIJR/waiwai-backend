@@ -10,7 +10,9 @@ from backend.schemas import (
     AttachmentCreate,
     AttachmentData,
     AttachmentPublic,
+    BaseResponse,
     BaseResponsePage,
+    CreatedResponse,
     ParamsAttachments,
     PermissionType,
     UserAuth,
@@ -43,11 +45,12 @@ async def list_meanings(
 
 @router.post(
     '/',
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(security),
         Authorization([PermissionType.ADMIN, PermissionType.USER]),
     ],
+    response_model=BaseResponse[CreatedResponse],
 )
 async def create_attachment(
     word_id: int,
@@ -64,4 +67,6 @@ async def create_attachment(
         word_id=word_id,
         user_id=current_user.id,
     )
-    await Attachments(session).create(attach)
+
+    result = await Attachments(session).create(attach)
+    return BaseResponse[CreatedResponse](data=CreatedResponse(id=result.id))

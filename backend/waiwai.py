@@ -25,7 +25,7 @@ app = FastAPI(
     redoc_url=None,
     title='WaiWaiTapota API',
     summary='Serviço de API do Dicionário WaiWai - UFOPA',
-    redirect_slashes=False
+    redirect_slashes=False,
 )
 
 origins = ['http://localhost:3000']
@@ -33,7 +33,7 @@ origins = ['http://localhost:3000']
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"^https?://(?:.+\.)?pawana\.com\.br$",
+    allow_origin_regex=r'^https?://(?:.+\.)?pawana\.com\.br$',
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],

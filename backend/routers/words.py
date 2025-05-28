@@ -9,6 +9,7 @@ from backend.repositories import Words
 from backend.schemas import (
     BaseResponse,
     BaseResponsePage,
+    CreatedResponse,
     ErrorResponse,
     ParamsPageQuery,
     PermissionType,
@@ -56,7 +57,7 @@ async def get_word(
 
 @router.post(
     '/',
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(security),
         Authorization([PermissionType.USER, PermissionType.ADMIN]),
@@ -65,13 +66,16 @@ async def get_word(
         '403': {'model': ErrorResponse},
         '409': {'model': ErrorResponse},
     },
+    response_model=BaseResponse[CreatedResponse],
 )
 async def create_word(
     word: WordCreate,
     current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
-) -> None:
-    await Words(session).create(word, current_user)
+):
+    result = await Words(session).create(word, current_user)
+
+    return BaseResponse[CreatedResponse](data=CreatedResponse(id=result.id))
 
 
 @router.put(

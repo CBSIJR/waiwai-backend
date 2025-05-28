@@ -9,6 +9,7 @@ from .base import (
     Base,
     BaseResponse,
     BaseResponsePage,
+    CreatedResponse,
     CustomHTTPException,
     ErrorResponse,
     ErrorResponseMessage,

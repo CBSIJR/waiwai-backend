@@ -31,7 +31,7 @@ class Attachments(Repository):
     async def get_list(self, params: Params) -> Sequence[Attachment]:
         raise NotImplementedError
 
-    async def create(self, entity: AttachmentCreate) -> None:
+    async def create(self, entity: AttachmentCreate) -> Attachment:
         if await self.count_by_word_id(entity.word_id) >= 10:
             remove(entity.filedir)
             raise CustomHTTPException(
@@ -54,6 +54,7 @@ class Attachments(Repository):
         await self.session.refresh(attachment_db)
         attachment_db.url = '/uploads/' + str(attachment_db.id)
         await self.session.commit()
+        return attachment_db
 
     async def get_by_id(self, entity_id: int) -> Attachment:
         statement = select(Attachment).filter(Attachment.id == entity_id)

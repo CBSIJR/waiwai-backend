@@ -14,6 +14,7 @@ from backend.schemas import (
     UserAuth,
 )
 
+from .references import References
 from .base import Repository
 from .words import Words
 
@@ -57,20 +58,25 @@ class Meanings(Repository):
 
     async def create(
         self, word_id: int, entity: MeaningCreate, user: UserAuth
-    ) -> None:
+    ) -> Meaning:
+
+        await Words(session=self.session).get_by_id(entity_id=word_id)
+        await References(session=self.session).get_by_id(entity_id=entity.reference_id)
+
         meaning_db = Meaning(
             meaning_pt=entity.meaning_pt,
             meaning_ww=entity.meaning_ww,
             comment_pt=entity.comment_pt,
             comment_ww=entity.comment_ww,
-            user_id=entity.user_id,
-            word_id=entity.word_id,
+            user_id=user.id,
+            word_id=word_id,
             reference_id=entity.reference_id,
         )
 
         self.session.add(meaning_db)
         await self.session.commit()
         await self.session.refresh(meaning_db)
+        return meaning_db
 
     async def get_by_id(self, entity_id: int) -> Meaning:
         statement = select(Meaning).filter(Meaning.id == entity_id)

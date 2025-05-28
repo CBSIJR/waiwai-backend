@@ -7,7 +7,9 @@ from backend.auth import Authorization, JWTBearer, get_current_user
 from backend.configs import get_async_session
 from backend.repositories import Meanings
 from backend.schemas import (
+    BaseResponse,
     BaseResponsePage,
+    CreatedResponse,
     ErrorResponse,
     MeaningCreate,
     MeaningPublic,
@@ -42,7 +44,7 @@ async def list_meanings(
 
 @router.post(
     '/',
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(security),
         Authorization([PermissionType.ADMIN, PermissionType.USER]),
@@ -51,11 +53,13 @@ async def list_meanings(
         '403': {'model': ErrorResponse},
         '409': {'model': ErrorResponse},
     },
+    response_model=BaseResponse[CreatedResponse],
 )
 async def create_meaning(
     word_id: int,
     meaning: MeaningCreate,
     current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
-) -> None:
-    await Meanings(session).create(word_id, meaning, current_user)
+):
+    result = await Meanings(session).create(word_id, meaning, current_user)
+    return BaseResponse[CreatedResponse](data=CreatedResponse(id=result.id))

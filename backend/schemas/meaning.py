@@ -31,6 +31,7 @@ class MeaningCreate(BaseModel):
     meaning_ww: Optional[str] = Field(min_length=1, max_length=300)
     comment_ww: Optional[str] = Field(min_length=5, max_length=800)
     comment_pt: Optional[str] = Field(min_length=5, max_length=800)
+    reference_id: int = Field(min=1)
 
 
 class MeaningUpdate(MeaningCreate):

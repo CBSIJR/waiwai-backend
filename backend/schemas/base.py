@@ -28,6 +28,10 @@ class Base(BaseModel):
     model_config = {'from_attributes': True}
 
 
+class CreatedResponse(Base):
+    pass
+
+
 class BaseResponse(BaseModel, Generic[T]):
     data: Union[T, List[T]]
 
