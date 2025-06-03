@@ -32,7 +32,7 @@ class Words(Repository):
         statement = (
             select(Word)
             .options(joinedload(Word.categories))
-            .options(joinedload(Word.meanings, innerjoin=False))
+            .options(joinedload(Word.meanings))
             .group_by(Word.id)
             .order_by(Word.word)
         )
@@ -49,7 +49,7 @@ class Words(Repository):
                     func.lower(Meaning.comment_ww).ilike(search_filter),
                 )
             )
-        statement = statement.join(Word.meanings)
+        statement = statement.outerjoin(Word.meanings,)
         statement = statement.offset(
             (params.page - 1) * params.page_size
         ).limit(params.page_size)
