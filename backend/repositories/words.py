@@ -32,7 +32,7 @@ class Words(Repository):
         statement = (
             select(Word)
             .options(joinedload(Word.categories))
-            .options(joinedload(Word.meanings))
+            .options(joinedload(Word.meanings, innerjoin=False))
             .group_by(Word.id)
             .order_by(Word.word)
         )
