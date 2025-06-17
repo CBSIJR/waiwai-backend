@@ -25,7 +25,7 @@ app = FastAPI(
     redoc_url=None,
     title='WaiWaiTapota API',
     summary='Serviço de API do Dicionário WaiWai - UFOPA',
-    redirect_slashes=False,
+    # redirect_slashes=False,
 )
 
 origins = ['http://localhost:3000']
