@@ -1,7 +1,7 @@
-from typing import Sequence
+from typing import Sequence, Union
 
 from fastapi import status
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -27,7 +27,7 @@ class Words(Repository):
         self.session: AsyncSession = session
 
     async def get_list(
-        self, params: ParamsPageQuery, user_id: int | None = None
+        self, params: ParamsPageQuery, user: Union[None, UserAuth] = None
     ) -> Sequence[Word]:
         statement = (
             select(Word)
@@ -36,8 +36,8 @@ class Words(Repository):
             .group_by(Word.id)
             .order_by(Word.word)
         )
-        if user_id:
-            statement = statement.where(Word.user_id == user_id)
+        if user and user.permission is not PermissionType.ADMIN:
+            statement = statement.where(Word.user_id == user.id)
         if params.q:
             search_filter = f'%{params.q.lower()}%'
             statement = statement.where(
@@ -169,7 +169,7 @@ class Words(Repository):
         word_categories = result.all()
         return word_categories
 
-    async def count(self, params: ParamsPageQuery) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth]) -> int:
         if not params.q:
             statement = select(func.count()).select_from(Word)
         else:
@@ -195,6 +195,9 @@ class Words(Repository):
                     )
                 )
             )
+
+        if user and user.permission is not PermissionType.ADMIN:
+            statement = statement.where(Word.user_id == user.id)
 
         result = await self.session.execute(statement)
         return result.scalar_one()

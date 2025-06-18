@@ -1,4 +1,5 @@
 from fastapi import Request, status
+from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.auth import auth
@@ -11,13 +12,17 @@ def verify_jwt(token: str) -> bool:
 
 
 class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True):
+    def __init__(self, auto_error: bool = False):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
         credentials: HTTPAuthorizationCredentials | None = await super(
             JWTBearer, self
         ).__call__(request)
+        authorization = request.headers.get("Authorization")
+        scheme, param = get_authorization_scheme_param(authorization)
+        if not (authorization and scheme and param):
+            raise CustomHTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Não autenticado.")
         if credentials:
             if not credentials.scheme == 'Bearer':
                 raise CustomHTTPException(

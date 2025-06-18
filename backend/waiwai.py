@@ -16,6 +16,7 @@ from backend.routers import (
     wordcategory,
     wordmeanings,
     words,
+    me
 )
 from backend.schemas import VersionPublic
 
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(root)
+app.include_router(me)
 app.include_router(auth)
 app.include_router(words)
 app.include_router(wordmeanings)

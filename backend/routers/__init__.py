@@ -9,3 +9,4 @@ from .wordattachments import router as wordattachments
 from .wordcategory import router as wordcategory
 from .wordmeanings import router as wordmeanings
 from .words import router as words
+from .me import router as me

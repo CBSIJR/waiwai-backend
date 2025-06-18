@@ -40,7 +40,7 @@ class Settings(BaseSettings):
         alias='JWT_SECRET_KEY_REFRESH_TOKEN'
     )
     jwt_expiration_access_token: int = Field(
-        alias='JWT_EXPIRATION_ACCESS_TOKEN', default=30
+        alias='JWT_EXPIRATION_ACCESS_TOKEN', default=1 * 60
     )  # 30 minutos
     jwt_expiration_refresh_token: int = Field(
         alias='JWT_EXPIRATION_REFRESH_TOKEN', default=60 * 24 * 7

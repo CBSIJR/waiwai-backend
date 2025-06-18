@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Union
 
 from fastapi import status
 from sqlalchemy import func, or_, select
@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Meaning
 from backend.schemas import (
+    ParamsPageQuery,
     CustomHTTPException,
     MeaningCreate,
     MeaningUpdate,
@@ -27,19 +28,25 @@ class Meanings(Repository):
         self.session: AsyncSession = session
         self.words: Words = Words(session=self.session)
 
-    async def get_list(self, params: ParamsMeaning) -> Sequence[Meaning]:
+    async def get_list(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> Sequence[Meaning]:
         if params.q:
             search = '%{}%'.format(params.q)
             statement = (
                 select(Meaning)
                 .where(
                     or_(
-                        func.upper(Meaning.meaning_pt).like(
-                            func.upper(search)
+                        func.lower(Meaning.meaning_pt).ilike(
+                            search
                         ),
-                        func.upper(Meaning.meaning_ww).like(
-                            func.upper(search)
+                        func.lower(Meaning.meaning_ww).ilike(
+                            search
                         ),
+                        func.lower(Meaning.comment_pt).ilike(
+                            search
+                        ),
+                        func.lower(Meaning.comment_ww).ilike(
+                            search
+                        )
                     )
                 )
                 .offset((params.page - 1) * params.page_size)
@@ -51,6 +58,9 @@ class Meanings(Repository):
                 .offset((params.page - 1) * params.page_size)
                 .limit(params.page_size)
             )
+
+        if user and user.permission is not PermissionType.ADMIN:
+            statement = statement.where(Meaning.user_id == user.id)
         result = await self.session.execute(statement)
         meanings = result.scalars().all()
 
@@ -152,7 +162,27 @@ class Meanings(Repository):
         meanings = result.scalars().all()
         return meanings
 
-    async def count(self) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth]) -> int:
         statement = select(func.count()).select_from(Meaning)
+        if params.q:
+            statement = statement.where(
+                or_(
+                    func.lower(Meaning.meaning_pt).ilike(
+                            f'%{params.q.lower()}%'
+                        ),
+                    func.lower(Meaning.meaning_ww).ilike(
+                        f'%{params.q.lower()}%'
+                    ),
+                    func.lower(Meaning.comment_pt).ilike(
+                        f'%{params.q.lower()}%'
+                    ),
+                    func.lower(Meaning.comment_ww).ilike(
+                        f'%{params.q.lower()}%'
+                    )
+                ))
+
+        if user and user.permission is not PermissionType.ADMIN:
+            statement = statement.where(Meaning.user_id == user.id)
+
         result = await self.session.execute(statement)
         return result.scalar_one()
