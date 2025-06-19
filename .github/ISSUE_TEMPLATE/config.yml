@@ -1,0 +1,6 @@
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false     # oculta opção “Blank issue”
+contact_links:                  # links extras no selector
+  - name: "Suporte do Projeto"
+    url: https:////aejunior.dev/
+    about: "Dúvidas gerais e suporte"
