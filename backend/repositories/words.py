@@ -169,7 +169,7 @@ class Words(Repository):
         word_categories = result.all()
         return word_categories
 
-    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth]) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
         if not params.q:
             statement = select(func.count()).select_from(Word)
         else:

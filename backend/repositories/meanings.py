@@ -162,7 +162,7 @@ class Meanings(Repository):
         meanings = result.scalars().all()
         return meanings
 
-    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth]) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
         statement = select(func.count()).select_from(Meaning)
         if params.q:
             statement = statement.where(
