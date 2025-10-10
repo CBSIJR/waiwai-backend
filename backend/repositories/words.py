@@ -136,7 +136,7 @@ class Words(Repository):
             categories_db_list.append(result_category)
 
         word_db.word = entity.word
-        word_db.phonemic = (entity.phonemic,)
+        word_db.phonemic = entity.phonemic
         word_db.categories = categories_db_list
 
         self.session.add(word_db)
