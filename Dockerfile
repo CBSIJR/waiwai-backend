@@ -39,4 +39,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["sh", "-c", "cron && poetry run app"]
+CMD ["sh", "-c", "poetry run app"]
