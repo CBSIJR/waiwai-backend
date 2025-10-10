@@ -17,12 +17,16 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --n
 
 FROM base AS runtime
 
-RUN apt-get update && apt-get install -y cron
+RUN apk update && apk add dcron
 
 COPY backup_public.sh /usr/local/bin/backup_public.sh
 RUN chmod +x /usr/local/bin/backup_public.sh
 
-RUN echo "0 2 * * * /usr/local/bin/backup_public.sh >> /var/log/backup.log 2>&1" | crontab -
+# Optional: Add a cron job
+RUN echo "*/5 * * * * /usr/local/bin/backup_public.sh >> /var/log/cron.log 2>&1" > /etc/crontabs/root
+# Optional: Start crond in foreground
+CMD ["dcron", "-f"]
+# RUN echo "0 2 * * * /usr/local/bin/backup_public.sh >> /var/log/backup.log 2>&1" | crontab -
 
 RUN mkdir -p /backups
 
@@ -35,4 +39,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["sh", "-c", "cron && poetry run app"]
+CMD ["sh", "-c", "poetry run app"]
