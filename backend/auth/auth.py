@@ -5,6 +5,8 @@ import jwt
 from fastapi import Depends, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
 from jwt import DecodeError as JWTError
+from jwt import ExpiredSignatureError as JWTExpiredError
+
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +26,7 @@ from backend.utils import create_access_token, create_refresh_token
 from .auth_handler import JWTBearer
 
 settings = Settings()
-security = JWTBearer()
+security = JWTBearer(auto_error=False)
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
@@ -46,8 +48,12 @@ def decode_jwt_exp(token: str) -> dict | None:
             settings.jwt_secret_key_access_token,
             algorithms=[settings.jwt_algorithm],
         )
-        return decoded_token if decoded_token['exp'] >= time.time() else None
+        return decoded_token
+    except JWTExpiredError:
+        # Token expirado
+        return None
     except JWTError:
+        # Token inválido
         return None
 
 

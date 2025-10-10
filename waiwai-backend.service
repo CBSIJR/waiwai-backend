@@ -1,0 +1,29 @@
+[Unit]
+Description=Waiwai Backend via Poetry
+After=network.target
+
+[Service]
+# Usuário e grupo que vão rodar o app
+User=user
+Group=user
+
+# Diretório onde está seu pyproject.toml
+WorkingDirectory=/home/user/waiwai-backend
+
+# Comando que inicia sua aplicação
+ExecStart=/usr/bin/poetry run app
+
+# Se o app morrer, reinicia automaticamente em 5 segundos
+Restart=always
+RestartSec=5
+
+# Redireciona stdout e stderr para um arquivo
+StandardOutput=append:/home/user/waiwai-backend/nohup.out
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target
+
+# sudo systemctl daemon-reload
+# sudo systemctl enable myapp.service     # inicia no boot
+# sudo systemctl start  myapp.service     # já sobe agora

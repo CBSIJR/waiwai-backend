@@ -1,5 +1,5 @@
 from os import remove
-from typing import Sequence
+from typing import Sequence, Union
 
 from fastapi import status
 from sqlalchemy import Row, func, select
@@ -10,7 +10,7 @@ from backend.schemas import (
     AttachmentCreate,
     AttachmentUpdate,
     CustomHTTPException,
-    Params,
+    ParamsPageQuery,
     ParamsAttachments,
     PermissionType,
     UserAuth,
@@ -28,7 +28,7 @@ class Attachments(Repository):
         self.session: AsyncSession = session
         self.words: Words = Words(session=self.session)
 
-    async def get_list(self, params: Params) -> Sequence[Attachment]:
+    async def get_list(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> Sequence[Attachment]:
         raise NotImplementedError
 
     async def create(self, entity: AttachmentCreate) -> Attachment:

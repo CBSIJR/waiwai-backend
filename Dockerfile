@@ -17,6 +17,15 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --without dev --n
 
 FROM base AS runtime
 
+RUN apt-get update && apt-get install -y cron
+
+COPY backup_public.sh /usr/local/bin/backup_public.sh
+RUN chmod +x /usr/local/bin/backup_public.sh
+
+RUN echo "0 2 * * * /usr/local/bin/backup_public.sh >> /var/log/backup.log 2>&1" | crontab -
+
+RUN mkdir -p /backups
+
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
@@ -26,4 +35,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["poetry", "run", "app"]
+CMD ["sh", "-c", "cron && poetry run app"]
