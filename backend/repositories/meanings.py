@@ -104,10 +104,10 @@ class Meanings(Repository):
     ) -> None:
         meaning_db = await self.get_by_id(entity_id)
 
-        meaning_db.meaning_pt = (entity.meaning_pt,)
-        meaning_db.meaning_ww = (entity.meaning_ww,)
-        meaning_db.comment_pt = (entity.comment_pt,)
-        meaning_db.comment_ww = (entity.comment_ww,)
+        meaning_db.meaning_pt = entity.meaning_pt
+        meaning_db.meaning_ww = entity.meaning_ww
+        meaning_db.comment_pt = entity.comment_pt
+        meaning_db.comment_ww = entity.comment_ww
 
         self.session.add(meaning_db)
         await self.session.commit()
