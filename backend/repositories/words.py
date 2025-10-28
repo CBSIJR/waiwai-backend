@@ -38,16 +38,23 @@ class Words(Repository):
         )
         if user and user.permission is not PermissionType.ADMIN:
             statement = statement.where(Word.user_id == user.id)
-        if params.q:
-            search_filter = f'%{params.q.lower()}%'
-            statement = statement.where(
-                or_(
+        if params.q or params.starts_with:
+            search_filter = f'%{params.q.lower()}%' if params.q else f'{params.starts_with.lower()}%'
+            if params.starts_with:
+                condition = or_(
+                    func.lower(Word.word).ilike(search_filter)
+                )
+            if params.q:
+                condition = or_(
                     func.lower(Word.word).ilike(search_filter),
                     func.lower(Meaning.meaning_pt).ilike(search_filter),
                     func.lower(Meaning.meaning_ww).ilike(search_filter),
                     func.lower(Meaning.comment_pt).ilike(search_filter),
                     func.lower(Meaning.comment_ww).ilike(search_filter),
                 )
+
+            statement = statement.where(
+                condition
             )
         statement = statement.outerjoin(Word.meanings,)
         statement = statement.offset(

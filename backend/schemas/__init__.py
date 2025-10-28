@@ -37,6 +37,7 @@ from .params import (
     ParamsAttachments,
     ParamsCategory,
     ParamsMeaning,
+    ParamsWordQuery,
     ParamsPageQuery,
     ParamsReference,
 )

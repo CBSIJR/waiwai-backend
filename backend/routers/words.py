@@ -11,7 +11,7 @@ from backend.schemas import (
     BaseResponsePage,
     CreatedResponse,
     ErrorResponse,
-    ParamsPageQuery,
+    ParamsWordQuery,
     PermissionType,
     UserAuth,
     WordCreate,
@@ -34,7 +34,7 @@ security = JWTBearer()
     response_model=BaseResponsePage[List[WordPublic]],
 )
 async def list_words(
-    params: ParamsPageQuery = Depends(),
+    params: ParamsWordQuery = Depends(),
     session: AsyncSession = Depends(get_async_session),
 ):
     words = await Words(session).get_list(params)

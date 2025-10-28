@@ -23,6 +23,8 @@ class ParamsCategory(Params):
 class ParamsPageQuery(Params, ParamsQuery):
     pass
 
+class ParamsWordQuery(ParamsPageQuery):
+    starts_with: Optional[str] = Query(None, min_length=1, max_length=50)
 
 class ParamsReference(Params):
     q: Optional[str] = Query(None, min_length=1, max_length=50)
