@@ -20,6 +20,7 @@ class Word(Base):
 
 
 class WordCategory(BaseModel):
+    id: int
     category: str
     model_config = {'from_attributes': True}
 

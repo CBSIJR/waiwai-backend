@@ -9,6 +9,7 @@ from backend.repositories import Words,Meanings
 from backend.schemas import (
     BaseResponsePage,
     ErrorResponse,
+    ParamsWordQuery,
     ParamsPageQuery,
     PermissionType,
     UserAuth,
@@ -36,7 +37,7 @@ security = JWTBearer()
     ]
 )
 async def me_words(
-    params: ParamsPageQuery = Depends(),
+    params: ParamsWordQuery = Depends(),
     current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
