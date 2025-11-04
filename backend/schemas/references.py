@@ -1,6 +1,6 @@
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from pydantic.networks import AnyHttpUrl, UrlConstraints
 
 from .base import Base
@@ -31,6 +31,28 @@ class ReferenceCreate(BaseModel):
             UrlConstraints(max_length=2048, allowed_schemes=['http', 'https']),
         ]
     ]
+    
+    @field_validator('reference')
+    def reference_validator(cls, v: str):
+        # Remove espaços extras no início/fim
+        v = v.strip()
+
+        # Substitui múltiplos espaços por apenas um
+        v = ' '.join(v.split())
+
+        assert all(c.isalpha() or c.isspace() or c in {';',',', '.'} for c in v), 'Deve conter apenas letras, espaços ou ponto e vírgula, vírgula e ponto final.'
+        return v.capitalize()
+    
+    @field_validator('authors')
+    def authors_validator(cls, v: str):
+        # Remove espaços extras no início/fim
+        v = v.strip()
+
+        # Substitui múltiplos espaços por apenas um
+        v = ' '.join(v.split())
+
+        assert all(c.isalpha() or c.isspace() or c in {';',',', '.'} for c in v), 'Deve conter apenas letras, espaços ou ponto e vírgula, vírgula e ponto final.'
+        return v.capitalize()
 
 
 class ReferenceUpdate(ReferenceCreate):
