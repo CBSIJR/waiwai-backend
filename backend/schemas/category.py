@@ -8,9 +8,8 @@ class Category(Base):
     description: str
 
 
-class CategoryPublic(Base):
-    category: str
-
+class CategoryPublic(Category):
+    pass
 
 class CategoryExport(Category):
     pass
@@ -21,8 +20,25 @@ class CategoryCreate(BaseModel):
     description: str = Field(min_length=3, max_length=255)
 
     @field_validator('category')
-    def first_name_alphanumeric(cls, v: str):
-        assert v.isalpha() or v.isnumeric(), 'Deve ser alfanumérico.'
+    def category_validator(cls, v: str):
+        # Remove espaços extras no início/fim
+        v = v.strip()
+
+        # Substitui múltiplos espaços por apenas um
+        v = ' '.join(v.split())
+
+        assert all(c.isalpha() or c.isspace() for c in v), 'Deve conter apenas letras e espaços.'
+        # assert v.isalpha() or v.isnumeric(), 'Deve ser alfabético.'
+        return v.capitalize()
+
+    @field_validator('description')
+    def description_validator(cls, v: str):
+        # Remove espaços extras no início/fim
+        v = v.strip()
+
+        # Substitui múltiplos espaços por apenas um
+        v = ' '.join(v.split())
+
         return v.capitalize()
 
 
