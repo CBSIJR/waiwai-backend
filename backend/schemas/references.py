@@ -23,7 +23,7 @@ class ReferencePublic(Reference):
 
 class ReferenceCreate(BaseModel):
     reference: str = Field(min_length=3, max_length=350)
-    year: Optional[int] = Field(min_length=1900, max_length=9999)
+    year: Optional[int] = Field(gt=1900, lt=9999)
     authors: str = Field(min_length=3, max_length=350)
     url: Optional[
         Annotated[
@@ -54,6 +54,11 @@ class ReferenceCreate(BaseModel):
         assert all(c.isalpha() or c.isspace() or c in {';',',', '.'} for c in v), 'Deve conter apenas letras, espaços ou ponto e vírgula, vírgula e ponto final.'
         return v.capitalize()
 
+    @field_validator('url')
+    def url_validator(cls, v):
+        if isinstance(v, AnyHttpUrl):
+            return str(v)
+        return v
 
 class ReferenceUpdate(ReferenceCreate):
     pass
