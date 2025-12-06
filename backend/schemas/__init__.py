@@ -66,4 +66,5 @@ from .word import (
     WordExport,
     WordPublic,
     WordUpdate,
+    LetterStatistic
 )

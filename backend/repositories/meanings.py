@@ -4,6 +4,7 @@ from fastapi import status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.configs import async_session_maker
 from backend.models import Meaning
 from backend.schemas import (
     ParamsPageQuery,
@@ -15,6 +16,7 @@ from backend.schemas import (
     UserAuth,
 )
 
+from warnings import deprecated
 from .references import References
 from .base import Repository
 from .words import Words
@@ -159,11 +161,20 @@ class Meanings(Repository):
 
         return meanings
 
+    @deprecated("This function is deprecated; use stream_all() instead.")
     async def all(self) -> Sequence[Meaning]:
         statement = select(Meaning)
         result = await self.session.execute(statement)
         meanings = result.scalars().all()
         return meanings
+
+    @staticmethod
+    async def stream_all():
+        async with async_session_maker() as session:
+            statement = select(Meaning).execution_options(yield_per=100)
+            stream = await session.stream_scalars(statement)
+            async for row in stream:
+                yield row
 
     async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
         statement = select(func.count()).select_from(Meaning)

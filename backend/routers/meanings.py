@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth import Authorization, JWTBearer, get_current_user
@@ -81,9 +82,16 @@ async def delete_meaning(
 @router.get(
     '/export/all',
     status_code=status.HTTP_200_OK,
-    responses={'404': {'model': Message}},
-    response_model=List[MeaningExport],
 )
-async def get_export(session: AsyncSession = Depends(get_async_session)):
-    meanings = await Meanings(session).all()
-    return meanings
+async def get_export():
+    async def generate_json():
+        yield "["
+        first = True
+        async for meaning in Meanings.stream_all():
+            if not first:
+                yield ","
+            first = False
+            yield MeaningExport.model_validate(meaning).model_dump_json() + "\n"
+        yield "]"  
+
+    return StreamingResponse(generate_json(), media_type="application/json")

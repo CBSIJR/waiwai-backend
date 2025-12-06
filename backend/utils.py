@@ -2,7 +2,7 @@ import datetime
 import logging
 import uuid
 from datetime import timedelta
-
+from sqlalchemy import func
 import jwt
 from pydantic_settings import BaseSettings
 
@@ -53,6 +53,8 @@ def create_access_token(
     )
     return encoded_jwt
 
+def translate_char(field):
+    return func.translate(func.upper(field),"ÁÀÂÃÄÅÇČÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÑƝŘ","AAAAAACCEEEEIIIIOOOOOUUUUNNR")
 
 def create_refresh_token(
     subject: Subject, settings: BaseSettings, expires_delta: timedelta = None
