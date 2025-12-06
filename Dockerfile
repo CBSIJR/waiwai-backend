@@ -1,6 +1,6 @@
-FROM python:3.12.8-alpine3.21 AS base
+FROM python:3.13.10-alpine3.23 AS base
 
-RUN pip install poetry==1.8.4
+RUN pip install poetry==2.1.3
 
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
