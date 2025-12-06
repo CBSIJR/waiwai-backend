@@ -1,11 +1,13 @@
 from typing import Sequence, Union
 
 from fastapi import status
-from sqlalchemy import func, or_, and_, select
+from sqlalchemy import func, or_, and_, select, cast, Numeric
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from backend.configs import async_session_maker
 from backend.models import Meaning, Word, WordCategory
+from backend.utils import translate_char
 from backend.schemas import (
     CustomHTTPException,
     ParamsPageQuery,
@@ -13,8 +15,9 @@ from backend.schemas import (
     UserAuth,
     WordCreate,
     WordUpdate,
+    LetterStatistic
 )
-
+from warnings import deprecated
 from .base import Repository
 from .categories import Categories
 
@@ -42,7 +45,7 @@ class Words(Repository):
             search_filter = f'%{params.q.lower()}%' if params.q else f'{params.starts_with.lower()}%'
             if params.starts_with:
                 condition = or_(
-                    func.lower(Word.word).ilike(search_filter)
+                    func.lower(translate_char(Word.word)).ilike(search_filter)
                 )
             if params.q:
                 condition = or_(
@@ -164,11 +167,20 @@ class Words(Repository):
         await self.session.delete(word_db)
         await self.session.commit()
 
+    @deprecated("This function is deprecated; use stream_all() instead.")
     async def all(self) -> Sequence[Word]:
         statement = select(Word)
-        result = await self.session.execute(statement)
-        words = result.scalars().all()
-        return words
+        stream = await self.session.stream(statement)
+        async for row in stream.scalars():
+            yield row
+
+    @staticmethod
+    async def stream_all():
+        async with async_session_maker() as session:
+            statement = select(Word).execution_options(yield_per=100)
+            stream = await session.stream_scalars(statement)
+            async for row in stream:
+                yield row
 
     async def all_wc(self) -> Sequence[WordCategory]:
         statement = select(WordCategory)
@@ -176,32 +188,55 @@ class Words(Repository):
         word_categories = result.all()
         return word_categories
 
+    async def get_letter_statistic(self) -> Sequence[LetterStatistic]:
+        subq = select(func.count("*")).select_from(Word).scalar_subquery()
+        
+        first_letter = func.left(translate_char(Word.word), 1).label("first_letter")
+        statement = (
+            select(
+                first_letter,
+                func.count().label("count"),
+                func.round(
+                    cast((func.count() * 100.0 / subq), Numeric),
+                    4
+                ).label("percentage")
+            )
+            .group_by(first_letter)
+            .order_by(first_letter)
+        )
+        result = await self.session.execute(statement)
+        rows = result.mappings().all()
+        return rows
+
     async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
-        if not params.q:
+        has_q = bool(params.q)
+        has_starts = bool(params.starts_with)
+
+        if not has_q and not has_starts:
             statement = select(func.count()).select_from(Word)
+
         else:
             statement = (
                 select(func.count(func.distinct(Word.id)))
                 .select_from(Word)
-                .join(Word.meanings)
-                .where(
-                    or_(
-                        func.lower(Word.word).ilike(f'%{params.q.lower()}%'),
-                        func.lower(Meaning.meaning_pt).ilike(
-                            f'%{params.q.lower()}%'
-                        ),
-                        func.lower(Meaning.meaning_ww).ilike(
-                            f'%{params.q.lower()}%'
-                        ),
-                        func.lower(Meaning.comment_pt).ilike(
-                            f'%{params.q.lower()}%'
-                        ),
-                        func.lower(Meaning.comment_ww).ilike(
-                            f'%{params.q.lower()}%'
-                        ),
-                    )
-                )
+                .outerjoin(Word.meanings)
             )
+
+            if has_q:
+                search_value = params.q.lower()
+                condition = or_(
+                    func.lower(Word.word).ilike(f'%{search_value}%'),
+                    func.lower(Meaning.meaning_pt).ilike(f'%{search_value}%'),
+                    func.lower(Meaning.meaning_ww).ilike(f'%{search_value}%'),
+                    func.lower(Meaning.comment_pt).ilike(f'%{search_value}%'),
+                    func.lower(Meaning.comment_ww).ilike(f'%{search_value}%'),
+                )
+
+            else:
+                search_value = params.starts_with.lower()
+                condition = func.lower(translate_char(Word.word)).ilike(f'{search_value}%')
+
+            statement = statement.where(condition)
 
         if user and user.permission is not PermissionType.ADMIN:
             statement = statement.where(Word.user_id == user.id)

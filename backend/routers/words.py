@@ -1,10 +1,13 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
 from backend.auth import Authorization, JWTBearer, get_current_user
-from backend.configs import get_async_session
+from backend.utils import get_logger
+from backend.configs import get_async_session, async_session_maker
 from backend.repositories import Words
 from backend.schemas import (
     BaseResponse,
@@ -19,6 +22,7 @@ from backend.schemas import (
     WordExport,
     WordPublic,
     WordUpdate,
+    LetterStatistic,
 )
 
 router = APIRouter(
@@ -26,6 +30,17 @@ router = APIRouter(
     tags=['Palavras'],
 )
 security = JWTBearer()
+
+@router.get(
+    '/statistic',
+    status_code=status.HTTP_200_OK,
+    response_model=BaseResponse[List[LetterStatistic]],
+)
+async def get_word_statistic(
+    session: AsyncSession = Depends(get_async_session),
+):
+    statistic = await Words(session).get_letter_statistic()
+    return BaseResponse[List[LetterStatistic]](data=statistic)
 
 
 @router.get(
@@ -124,8 +139,16 @@ async def delete_word(
 @router.get(
     '/export/all',
     status_code=status.HTTP_200_OK,
-    response_model=List[WordExport],
 )
-async def get_export(session: AsyncSession = Depends(get_async_session)):
-    words = await Words(session).all()
-    return words
+async def get_export():
+    async def generate_json():
+        yield "["
+        first = True
+        async for word in Words.stream_all():
+            if not first:
+                yield ","
+            first = False
+            yield WordExport.model_validate(word).model_dump_json() + "\n"
+        yield "]"  
+
+    return StreamingResponse(generate_json(), media_type="application/json")

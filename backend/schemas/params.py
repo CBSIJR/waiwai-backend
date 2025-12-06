@@ -1,8 +1,9 @@
 from typing import Optional
 
 from fastapi import Query
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field, field_validator
+from pydantic_core import PydanticCustomError
+import unicodedata
 
 class ParamsQuery(BaseModel):
     q: Optional[str] = Query(None, min_length=1, max_length=50)
@@ -24,8 +25,13 @@ class ParamsPageQuery(Params, ParamsQuery):
     pass
 
 class ParamsWordQuery(ParamsPageQuery):
-    starts_with: Optional[str] = Query(None, min_length=1, max_length=50)
-
+    starts_with: Optional[str] = Query(None, min_length=1, max_length=1)
+    
+    @field_validator("starts_with")
+    def format_starts_with(cls, v):
+        if v:
+            return unicodedata.normalize("NFD", v).encode("ascii", "ignore").decode("utf-8")
+        
 class ParamsReference(Params):
     q: Optional[str] = Query(None, min_length=1, max_length=50)
 

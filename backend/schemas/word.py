@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from . import ReferencePublic
 from .base import Base, BaseModel
@@ -65,6 +65,14 @@ class WordExport(Base):
     created_at: datetime
     updated_at: datetime
     user_id: int
+
+class LetterStatistic(BaseModel):
+    first_letter: str = Field(description="Primeira letra")
+    count: int = Field(description="Quantidade total")
+    percentage: float = Field(description="Porcentagem da letra")
+    @field_validator("percentage")
+    def format_percentage(cls, v):
+        return float(f"{v:.4f}")  # enforce 4 decimal places
 
 
 class WordCreate(BaseModel):
