@@ -58,6 +58,7 @@ from .user import (
     UserLogin,
     UserPublic,
     UserUpdate,
+    UserRoleUpdate,
 )
 from .version import VersionPublic
 from .word import (

@@ -32,10 +32,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.backend_cors_origins,
-    allow_origin_regex=r'^https?://(?:.+\.)?pawana\.com\.br$',
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],
+    max_age=0,
 )
 
 app.include_router(root)

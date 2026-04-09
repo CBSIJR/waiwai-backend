@@ -11,7 +11,7 @@ class User(Base):
 
 
 class UserPublic(User):
-    pass
+    permission: PermissionType
 
 
 class UserCreate(BaseModel):
@@ -58,6 +58,10 @@ class UserAuth(Base):
 
 class UserUpdate(UserCreate):
     pass
+
+
+class UserRoleUpdate(BaseModel):
+    permission: PermissionType
 
 
 class UserExport(Base):

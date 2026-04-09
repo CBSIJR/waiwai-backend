@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 from typing import Sequence
 
 from fastapi import status
@@ -9,6 +10,7 @@ from backend.models import User
 from backend.schemas import (
     CustomHTTPException,
     Params,
+    PermissionType,
     Subject,
     Token,
     UserCreate,
@@ -101,6 +103,50 @@ class Users(Repository):
 
         self.session.add(user_db)
         await self.session.commit()
+
+    async def update_role(
+        self, user_id: int, new_permission: PermissionType, current_user: Subject
+    ) -> User:
+        user_db = await self.get_by_id(user_id)
+        if not user_db:
+            raise CustomHTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail='Usuário não encontrado.'
+            )
+
+        # Bloqueia auto-moderação (não pode mudar o próprio cargo)
+        if user_db.email == current_user.email:
+            raise CustomHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Você não pode alterar sua própria permissão.',
+            )
+
+        # Regra de Segurança: Rebaixamento (ADMIN -> USER)
+        if user_db.permission == PermissionType.ADMIN and new_permission != PermissionType.ADMIN:
+            now = datetime.now(timezone.utc)
+            # Se o usuário não tem update_at (registros antigos) ou se já passou 24h
+            if not user_db.update_at:
+                 raise CustomHTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail='Este administrador é antigo e não pode ser rebaixado.'
+                )
+            
+            # Garante que update_at tem timezone para comparação
+            updated_at = user_db.update_at
+            if updated_at.tzinfo is None:
+                updated_at = updated_at.replace(tzinfo=timezone.utc)
+
+            if (now - updated_at) > timedelta(days=1):
+                raise CustomHTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail='Administradores só podem ser rebaixados dentro de 24h após a última alteração.'
+                )
+
+        user_db.permission = new_permission
+        # O SQLAlchemy atualizará o update_at automaticamente se configurado no modelo,
+        # mas forçamos o commit para garantir a persistência imediata.
+        await self.session.commit()
+        await self.session.refresh(user_db)
+        return user_db
 
     async def delete_by_id(self, entity_id, entity: User) -> None:
         pass
