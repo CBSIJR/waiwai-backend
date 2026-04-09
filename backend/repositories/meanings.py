@@ -5,7 +5,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.configs import async_session_maker
-from backend.models import Meaning
+from backend.models import Meaning, Word
+from backend.models.base import WordStatus
 from backend.schemas import (
     ParamsPageQuery,
     CustomHTTPException,
@@ -96,6 +97,12 @@ class Meanings(Repository):
         )
 
         self.session.add(meaning_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(meaning_db)
         return meaning_db
@@ -132,6 +139,13 @@ class Meanings(Repository):
         meaning_db.reference_id = entity.reference_id
 
         self.session.add(meaning_db)
+
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await Words(session=self.session).get_by_id(entity_id=meaning_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(meaning_db)
 
@@ -148,6 +162,13 @@ class Meanings(Repository):
             )
 
         await self.session.delete(meaning_db)
+
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await Words(session=self.session).get_by_id(entity_id=meaning_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
 
     async def get_list_by_word_id(

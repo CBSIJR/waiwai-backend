@@ -194,6 +194,9 @@ class Words(Repository):
             result_category = await categories.get_by_id(category)
             categories_db_list.append(result_category)
 
+        if user.permission != PermissionType.ADMIN:
+            word_db.status = WordStatus.PENDING
+
         word_db.word = entity.word
         word_db.phonemic = entity.phonemic
         word_db.categories = categories_db_list

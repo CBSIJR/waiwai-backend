@@ -6,6 +6,7 @@ from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Attachment
+from backend.models.base import WordStatus
 from backend.schemas import (
     AttachmentCreate,
     AttachmentUpdate,
@@ -58,6 +59,12 @@ class Attachments(Repository):
         )
 
         self.session.add(attachment_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(attachment_db)
         attachment_db.url = '/uploads/' + str(attachment_db.id)
@@ -93,6 +100,13 @@ class Attachments(Repository):
             )
 
         await self.session.delete(attachment_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await self.words.get_by_id(attachment_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         remove(attachment_db.filedir)
 
