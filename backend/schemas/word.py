@@ -4,14 +4,16 @@ from typing import List, Optional
 from pydantic import Field, field_validator
 
 from . import ReferencePublic
-from .base import Base, BaseModel
+from .base import Base, BaseModel, WordStatus
 from .category import CategoryPublic
 from .meaning import MeaningPublic
+from .word_review import WordReviewPublic
 
 
 class Word(Base):
     word: str
     phonemic: str | None
+    status: WordStatus
     created_at: datetime
     updated_at: datetime
     categories: List[CategoryPublic]
@@ -28,6 +30,7 @@ class WordCategory(BaseModel):
 class WordPublic(Base):
     word: str
     phonemic: str | None
+    status: WordStatus
     categories: List[WordCategory]
     created_at: datetime
     updated_at: datetime
@@ -52,9 +55,11 @@ class WordMeaning(Base):
 class WordDetails(Base):
     word: str
     phonemic: str | None
+    status: WordStatus
     categories: List[WordCategory]
     attachments: List[WordAttachment]
     meanings: List[WordMeaning]
+    reviews: List[WordReviewPublic]
     created_at: datetime
     updated_at: datetime
 
@@ -83,3 +88,4 @@ class WordCreate(BaseModel):
 
 class WordUpdate(WordCreate):
     pass
+

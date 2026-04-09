@@ -19,6 +19,15 @@ class PermissionType(str, enum.Enum):
     ADMIN = 'ADMIN'
 
 
+class WordStatus(str, enum.Enum):
+    """Estado de aprovação de uma palavra no dicionário."""
+    PENDING = 'PENDING'
+    APPROVED = 'APPROVED'
+    REJECTED = 'REJECTED'
+    CHANGES_REQUESTED = 'CHANGES_REQUESTED'
+
+
+
 class Message(BaseModel):
     detail: str
 

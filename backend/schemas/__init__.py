@@ -17,6 +17,7 @@ from .base import (
     Message,
     PermissionType,
     WordCategoryExport,
+    WordStatus,
 )
 from .category import (
     Category,
@@ -67,4 +68,8 @@ from .word import (
     WordPublic,
     WordUpdate,
     LetterStatistic
+)
+from .word_review import (
+    WordReviewCreate,
+    WordReviewPublic,
 )

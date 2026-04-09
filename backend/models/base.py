@@ -14,6 +14,21 @@ class PermissionType(enum.Enum):
     ADMIN = 'ADMIN'
 
 
+class WordStatus(enum.Enum):
+    """
+    Máquina de estados para controle de aprovação de palavras.
+
+    Fluxo:
+        - ADMIN cria → direto para APPROVED.
+        - USER cria  → começa em PENDING.
+        - ADMIN revisa → move para APPROVED, REJECTED ou CHANGES_REQUESTED.
+    """
+    PENDING = 'PENDING'
+    APPROVED = 'APPROVED'
+    REJECTED = 'REJECTED'
+    CHANGES_REQUESTED = 'CHANGES_REQUESTED'
+
+
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 

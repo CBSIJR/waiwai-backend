@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from backend.configs import async_session_maker
-from backend.models import Meaning, Word, WordCategory
+from backend.models import Meaning, Word, WordCategory, WordReview, WordStatus
 from backend.utils import translate_char
 from backend.schemas import (
     CustomHTTPException,
@@ -14,6 +14,8 @@ from backend.schemas import (
     PermissionType,
     UserAuth,
     WordCreate,
+    WordReviewCreate,
+    WordStatus,
     WordUpdate,
     LetterStatistic
 )
@@ -39,8 +41,23 @@ class Words(Repository):
             .group_by(Word.id)
             .order_by(Word.word)
         )
-        if user and user.permission is not PermissionType.ADMIN:
-            statement = statement.where(Word.user_id == user.id)
+
+        # Filtro de visibilidade baseado em aprovação:
+        # - ADMIN: vê todas as palavras independente do status.
+        # - USER autenticado: vê as APPROVED + as suas próprias (qualquer status).
+        # - Público (sem autenticação): vê apenas APPROVED.
+        if user and user.permission == PermissionType.ADMIN:
+            pass  # ADMIN vê tudo, nenhum filtro adicional.
+        elif user:
+            statement = statement.where(
+                or_(
+                    Word.status == WordStatus.APPROVED,
+                    Word.user_id == user.id,
+                )
+            )
+        else:
+            statement = statement.where(Word.status == WordStatus.APPROVED)
+
         if params.q or params.starts_with:
             search_filter = f'%{params.q.lower()}%' if params.q else f'{params.starts_with.lower()}%'
             if params.starts_with:
@@ -82,11 +99,19 @@ class Words(Repository):
             result_category = await categories.get_by_id(category)
             categories_db_list.append(result_category)
 
+        # Regra de negócio: ADMINs publicam direto. USERs submetem para moderação.
+        initial_status = (
+            WordStatus.APPROVED
+            if user.permission == PermissionType.ADMIN
+            else WordStatus.PENDING
+        )
+
         word_db = Word(
             word=entity.word,
             phonemic=entity.phonemic,
             user_id=user.id,
             categories=categories_db_list,
+            status=initial_status,
         )
 
         self.session.add(word_db)
@@ -101,6 +126,7 @@ class Words(Repository):
             .options(joinedload(Word.categories))
             .options(joinedload(Word.meanings).joinedload(Meaning.reference))
             .options(joinedload(Word.attachments))
+            .options(joinedload(Word.reviews))
         )
         result = await self.session.execute(statement)
         word = result.unique().scalar_one_or_none()
@@ -166,6 +192,34 @@ class Words(Repository):
 
         await self.session.delete(word_db)
         await self.session.commit()
+
+    async def add_review(
+        self, word_id: int, review_data: WordReviewCreate, reviewer: UserAuth
+    ) -> WordReview:
+        """
+        Persiste uma revisão de um ADMIN sobre uma palavra.
+
+        Atualiza `word.status` de forma atômica com a criação da `WordReview`,
+        garantindo que o estado da palavra e o histórico de revisão estejam
+        sempre em sincronia dentro de uma única transação.
+        """
+        word_db = await self.get_by_id(word_id)
+
+        review = WordReview(
+            word_id=word_id,
+            reviewer_id=reviewer.id,
+            status=review_data.status,
+            comment=review_data.comment,
+        )
+        # Sincroniza o status raiz da palavra para refletir a última decisão.
+        word_db.status = review_data.status
+
+        self.session.add(review)
+        self.session.add(word_db)
+        await self.session.commit()
+        await self.session.refresh(review)
+        return review
+
 
     @deprecated("This function is deprecated; use stream_all() instead.")
     async def all(self) -> Sequence[Word]:
