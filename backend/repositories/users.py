@@ -115,6 +115,7 @@ class Users(Repository):
 
         # Bloqueia auto-moderação (não pode mudar o próprio cargo)
         if user_db.email == current_user.email:
+            print(f"DEBUG: Bloqueio auto-moderação: {user_db.email} == {current_user.email}")
             raise CustomHTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Você não pode alterar sua própria permissão.',

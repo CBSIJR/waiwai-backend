@@ -5,27 +5,14 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from typing_extensions import Annotated, Doc
 
+from backend.models.base import PermissionType, WordStatus
+
 T = TypeVar('T')
 
 
 class WordCategoryExport(BaseModel):
     word_id: int
     category_id: int
-
-
-class PermissionType(str, enum.Enum):
-    GUEST = 'GUEST'
-    USER = 'USER'
-    ADMIN = 'ADMIN'
-
-
-class WordStatus(str, enum.Enum):
-    """Estado de aprovação de uma palavra no dicionário."""
-    PENDING = 'PENDING'
-    APPROVED = 'APPROVED'
-    REJECTED = 'REJECTED'
-    CHANGES_REQUESTED = 'CHANGES_REQUESTED'
-
 
 
 class Message(BaseModel):

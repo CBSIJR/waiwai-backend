@@ -8,7 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 # https://stackoverflow.com/questions/75919378/how-to-handle-circular-imports-in-sqlalchemy
 
 
-class PermissionType(enum.Enum):
+class PermissionType(str, enum.Enum):
     GUEST = 'GUEST'
     USER = 'USER'
     ADMIN = 'ADMIN'
