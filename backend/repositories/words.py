@@ -32,7 +32,7 @@ class Words(Repository):
         self.session: AsyncSession = session
 
     async def get_list(
-        self, params: ParamsPageQuery, user: Union[None, UserAuth] = None
+        self, params: ParamsPageQuery, user: Union[None, UserAuth] = None, only_mine: bool = False
     ) -> Sequence[Word]:
         statement = (
             select(Word)
@@ -43,10 +43,13 @@ class Words(Repository):
         )
 
         # Filtro de visibilidade baseado em aprovação:
-        # - ADMIN: vê todas as palavras independente do status.
+        # - se only_mine: vê apenas as suas próprias palavras.
+        # - ADMIN: vê todas as palavras independente do status (se não for only_mine).
         # - USER autenticado: vê as APPROVED + as suas próprias (qualquer status).
         # - Público (sem autenticação): vê apenas APPROVED.
-        if user and user.permission == PermissionType.ADMIN:
+        if only_mine and user:
+            statement = statement.where(Word.user_id == user.id)
+        elif user and user.permission == PermissionType.ADMIN:
             pass  # ADMIN vê tudo, nenhum filtro adicional.
         elif user:
             statement = statement.where(
@@ -262,7 +265,7 @@ class Words(Repository):
         rows = result.mappings().all()
         return rows
 
-    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None, only_mine: bool = False) -> int:
         has_q = bool(params.q)
         has_starts = bool(params.starts_with)
 
@@ -292,7 +295,9 @@ class Words(Repository):
 
             statement = statement.where(condition)
 
-        if user and user.permission is not PermissionType.ADMIN:
+        if only_mine and user:
+            statement = statement.where(Word.user_id == user.id)
+        elif user and user.permission is not PermissionType.ADMIN:
             statement = statement.where(Word.user_id == user.id)
 
         result = await self.session.execute(statement)

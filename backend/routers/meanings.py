@@ -43,7 +43,7 @@ async def get_meaning(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(security),
-        Authorization([PermissionType.ADMIN]),
+        Authorization([PermissionType.USER, PermissionType.ADMIN]),
     ],
     responses={
         '403': {'model': ErrorResponse},
@@ -54,9 +54,10 @@ async def get_meaning(
 async def update_meaning(
     meaning_id: int,
     meaning: MeaningUpdate,
+    current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    await Meanings(session).update_by_id(meaning_id, meaning)
+    await Meanings(session).update_by_id(meaning_id, meaning, current_user)
 
 
 @router.delete(
