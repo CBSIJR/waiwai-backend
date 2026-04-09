@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 import json
 
-from backend.auth import Authorization, JWTBearer, get_current_user
+from backend.auth import Authorization, JWTBearer, get_current_user, get_current_user_optional
 from backend.utils import get_logger
 from backend.configs import get_async_session, async_session_maker
 from backend.repositories import Words
@@ -52,10 +52,11 @@ async def get_word_statistic(
 )
 async def list_words(
     params: ParamsWordQuery = Depends(),
+    current_user: UserAuth | None = Depends(get_current_user_optional),
     session: AsyncSession = Depends(get_async_session),
 ):
-    words = await Words(session).get_list(params)
-    total = await Words(session).count(params)
+    words = await Words(session).get_list(params, current_user)
+    total = await Words(session).count(params, current_user)
     return BaseResponsePage[WordPublic](data=words, total_items=total)
 
 

@@ -38,6 +38,7 @@ class Words(Repository):
             select(Word)
             .options(joinedload(Word.categories))
             .options(joinedload(Word.meanings))
+            .options(joinedload(Word.user))
             .group_by(Word.id)
             .order_by(Word.word)
         )
@@ -47,18 +48,37 @@ class Words(Repository):
         # - ADMIN: vê todas as palavras independente do status (se não for only_mine).
         # - USER autenticado: vê as APPROVED + as suas próprias (qualquer status).
         # - Público (sem autenticação): vê apenas APPROVED.
+        # Regra de Segurança: Somente ADMIN pode filtrar por status específicos via parâmetro
+        # (Se for USER ou Público, o filtro de status é ignorado ou restrito a APPROVED)
+        requested_status = params.status if (user and user.permission == PermissionType.ADMIN) else None
+
         if only_mine and user:
             statement = statement.where(Word.user_id == user.id)
         elif user and user.permission == PermissionType.ADMIN:
-            pass  # ADMIN vê tudo, nenhum filtro adicional.
+            if requested_status:
+                statement = statement.where(Word.status == requested_status)
         elif user:
-            statement = statement.where(
-                or_(
-                    Word.status == WordStatus.APPROVED,
-                    Word.user_id == user.id,
+            # USER vê APPROVED ou as suas próprias
+            if requested_status:
+                # Se USER pedir um status específico (ex: APPROVED), aplicamos se for permitido
+                statement = statement.where(
+                    and_(
+                        Word.status == requested_status,
+                        or_(
+                             Word.status == WordStatus.APPROVED,
+                             Word.user_id == user.id
+                        )
+                    )
                 )
-            )
+            else:
+                statement = statement.where(
+                    or_(
+                        Word.status == WordStatus.APPROVED,
+                        Word.user_id == user.id,
+                    )
+                )
         else:
+            # Público só vê APPROVED
             statement = statement.where(Word.status == WordStatus.APPROVED)
 
         if params.q or params.starts_with:
@@ -295,10 +315,26 @@ class Words(Repository):
 
             statement = statement.where(condition)
 
+        requested_status = params.status if (user and user.permission == PermissionType.ADMIN) else None
+
         if only_mine and user:
             statement = statement.where(Word.user_id == user.id)
+        elif user and user.permission == PermissionType.ADMIN:
+            if requested_status:
+                statement = statement.where(Word.status == requested_status)
         elif user and user.permission is not PermissionType.ADMIN:
-            statement = statement.where(Word.user_id == user.id)
+            if requested_status:
+                 statement = statement.where(
+                    and_(
+                        Word.status == requested_status,
+                        or_(
+                             Word.status == WordStatus.APPROVED,
+                             Word.user_id == user.id
+                        )
+                    )
+                )
+            else:
+                statement = statement.where(Word.user_id == user.id)
 
         result = await self.session.execute(statement)
         return result.scalar_one()

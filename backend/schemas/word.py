@@ -8,6 +8,7 @@ from .base import Base, BaseModel, WordStatus
 from .category import CategoryPublic
 from .meaning import MeaningPublic
 from .word_review import WordReviewPublic
+from .user import UserPublic
 
 
 class Word(Base):
@@ -32,6 +33,7 @@ class WordPublic(Base):
     phonemic: str | None
     status: WordStatus
     categories: List[WordCategory]
+    user: UserPublic
     created_at: datetime
     updated_at: datetime
 
