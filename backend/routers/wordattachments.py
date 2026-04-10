@@ -68,5 +68,5 @@ async def create_attachment(
         user_id=current_user.id,
     )
 
-    result = await Attachments(session).create(attach)
+    result = await Attachments(session).create(attach, current_user)
     return BaseResponse[CreatedResponse](data=CreatedResponse(id=result.id))

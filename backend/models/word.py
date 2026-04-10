@@ -7,11 +7,13 @@ if TYPE_CHECKING:
     from .category import Category
     from .meaning import Meaning
     from .user import User
+    from .word_review import WordReview
 else:
     Category = 'Category'
     User = 'User'
     Attachment = 'Attachment'
     Meaning = 'Meaning'
+    WordReview = 'WordReview'
 
 from datetime import datetime
 
@@ -19,7 +21,7 @@ from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import func
 
-from .base import Base, WordCategory
+from .base import Base, WordCategory, WordStatus
 
 
 class Word(Base):
@@ -28,6 +30,7 @@ class Word(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     word: Mapped[str] = mapped_column(String(100), unique=True)
     phonemic: Mapped[Optional[str]] = mapped_column(String(120))
+    status: Mapped[WordStatus] = mapped_column(default=WordStatus.PENDING)
     created_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -49,3 +52,10 @@ class Word(Base):
     categories: Mapped[Optional[List[Category]]] = relationship(
         secondary=WordCategory, back_populates='words'
     )
+
+    reviews: Mapped[List[WordReview]] = relationship(
+        back_populates='word',
+        cascade='all, delete-orphan',
+        order_by='WordReview.created_at.desc()',
+    )
+

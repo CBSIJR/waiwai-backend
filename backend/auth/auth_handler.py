@@ -19,10 +19,7 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials | None = await super(
             JWTBearer, self
         ).__call__(request)
-        authorization = request.headers.get("Authorization")
-        scheme, param = get_authorization_scheme_param(authorization)
-        if not (authorization and scheme and param):
-            raise CustomHTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Não autenticado.")
+        
         if credentials:
             if not credentials.scheme == 'Bearer':
                 raise CustomHTTPException(
@@ -35,8 +32,7 @@ class JWTBearer(HTTPBearer):
                     detail='Token inválido ou expirado.',
                 )
             return credentials
-        else:
-            raise CustomHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Código de autorização inválido.',
-            )
+        
+        # Se auto_error for True, o super() já teria levantado exceção.
+        # Se chegamos aqui sem credentials e sem exceção, é porque auto_error é False.
+        return None

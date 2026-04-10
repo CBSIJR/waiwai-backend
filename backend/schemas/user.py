@@ -3,15 +3,20 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from .base import Base, PermissionType
 
 
+from datetime import datetime
+from typing import Optional
+
 class User(Base):
     first_name: str
     last_name: str
     full_name: str
     email: str
+    created_at: Optional[datetime] = None
+    update_at: Optional[datetime] = None
 
 
 class UserPublic(User):
-    pass
+    permission: PermissionType
 
 
 class UserCreate(BaseModel):
@@ -58,6 +63,10 @@ class UserAuth(Base):
 
 class UserUpdate(UserCreate):
     pass
+
+
+class UserRoleUpdate(BaseModel):
+    permission: PermissionType
 
 
 class UserExport(Base):

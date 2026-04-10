@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 import json
 
-from backend.auth import Authorization, JWTBearer, get_current_user
+from backend.auth import Authorization, JWTBearer, get_current_user, get_current_user_optional
 from backend.utils import get_logger
 from backend.configs import get_async_session, async_session_maker
 from backend.repositories import Words
@@ -21,6 +21,8 @@ from backend.schemas import (
     WordDetails,
     WordExport,
     WordPublic,
+    WordReviewCreate,
+    WordReviewPublic,
     WordUpdate,
     LetterStatistic,
 )
@@ -50,10 +52,11 @@ async def get_word_statistic(
 )
 async def list_words(
     params: ParamsWordQuery = Depends(),
+    current_user: UserAuth | None = Depends(get_current_user_optional),
     session: AsyncSession = Depends(get_async_session),
 ):
-    words = await Words(session).get_list(params)
-    total = await Words(session).count(params)
+    words = await Words(session).get_list(params, current_user)
+    total = await Words(session).count(params, current_user)
     return BaseResponsePage[WordPublic](data=words, total_items=total)
 
 
@@ -114,6 +117,35 @@ async def update_word(
 ):
     await Words(session).update_by_id(word_id, word, current_user)
 
+@router.post(
+    '/{word_id}/reviews',
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(security),
+        Authorization([PermissionType.ADMIN]),
+    ],
+    responses={
+        '403': {'model': ErrorResponse},
+        '404': {'model': ErrorResponse},
+    },
+    response_model=BaseResponse[WordReviewPublic],
+)
+async def review_word(
+    word_id: int,
+    review: WordReviewCreate,
+    current_user: UserAuth = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """
+    Cria uma revisão de moderação para uma palavra.
+
+    Apenas ADMINs têm acesso. A decisão do revisor (APPROVED, REJECTED,
+    CHANGES_REQUESTED) é registrada no histórico e sincronizada imediatamente
+    no status da palavra.
+    """
+    result = await Words(session).add_review(word_id, review, current_user)
+    return BaseResponse[WordReviewPublic](data=result)
+
 
 @router.delete(
     '/{word_id}',
@@ -134,6 +166,7 @@ async def delete_word(
     session: AsyncSession = Depends(get_async_session),
 ):
     await Words(session).delete_by_id(word_id, current_user)
+
 
 
 @router.get(

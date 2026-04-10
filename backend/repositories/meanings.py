@@ -5,7 +5,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.configs import async_session_maker
-from backend.models import Meaning
+from backend.models import Meaning, Word
+from backend.models.base import WordStatus
 from backend.schemas import (
     ParamsPageQuery,
     CustomHTTPException,
@@ -30,7 +31,7 @@ class Meanings(Repository):
         self.session: AsyncSession = session
         self.words: Words = Words(session=self.session)
 
-    async def get_list(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> Sequence[Meaning]:
+    async def get_list(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None, only_mine: bool = False) -> Sequence[Meaning]:
         if params.q:
             search = '%{}%'.format(params.q)
             statement = (
@@ -61,7 +62,9 @@ class Meanings(Repository):
                 .limit(params.page_size)
             )
 
-        if user and user.permission is not PermissionType.ADMIN:
+        if only_mine and user:
+            statement = statement.where(Meaning.user_id == user.id)
+        elif user and user.permission is not PermissionType.ADMIN:
             statement = statement.where(Meaning.user_id == user.id)
         result = await self.session.execute(statement)
         meanings = result.scalars().all()
@@ -72,7 +75,15 @@ class Meanings(Repository):
         self, word_id: int, entity: MeaningCreate, user: UserAuth
     ) -> Meaning:
 
-        await Words(session=self.session).get_by_id(entity_id=word_id)
+        word_db = await Words(session=self.session).get_by_id(entity_id=word_id)
+        
+        # Bloqueia se usuário não for dono da palavra e não for admin
+        if word_db.user_id != user.id and user.permission != PermissionType.ADMIN:
+            raise CustomHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Você não tem permissão para adicionar significados a esta palavra.'
+            )
+
         await References(session=self.session).get_by_id(entity_id=entity.reference_id)
 
         meaning_db = Meaning(
@@ -86,6 +97,12 @@ class Meanings(Repository):
         )
 
         self.session.add(meaning_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(meaning_db)
         return meaning_db
@@ -102,9 +119,16 @@ class Meanings(Repository):
         return meaning
 
     async def update_by_id(
-        self, entity_id: int, entity: MeaningUpdate
+        self, entity_id: int, entity: MeaningUpdate, user: UserAuth
     ) -> None:
         meaning_db = await self.get_by_id(entity_id)
+
+        # Regra de Segurança: apenas dono ou admin edita
+        if meaning_db.user_id != user.id and user.permission != PermissionType.ADMIN:
+            raise CustomHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Usuário sem permissão para editar este significado.',
+            )
 
         await References(session=self.session).get_by_id(entity_id=entity.reference_id)
 
@@ -115,6 +139,13 @@ class Meanings(Repository):
         meaning_db.reference_id = entity.reference_id
 
         self.session.add(meaning_db)
+
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await Words(session=self.session).get_by_id(entity_id=meaning_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(meaning_db)
 
@@ -131,6 +162,13 @@ class Meanings(Repository):
             )
 
         await self.session.delete(meaning_db)
+
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await Words(session=self.session).get_by_id(entity_id=meaning_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
 
     async def get_list_by_word_id(
@@ -176,7 +214,7 @@ class Meanings(Repository):
             async for row in stream:
                 yield row
 
-    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> int:
+    async def count(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None, only_mine: bool = False) -> int:
         statement = select(func.count()).select_from(Meaning)
         if params.q:
             statement = statement.where(
@@ -194,8 +232,10 @@ class Meanings(Repository):
                         f'%{params.q.lower()}%'
                     )
                 ))
-
-        if user and user.permission is not PermissionType.ADMIN:
+        
+        if only_mine and user:
+            statement = statement.where(Meaning.user_id == user.id)
+        elif user and user.permission is not PermissionType.ADMIN:
             statement = statement.where(Meaning.user_id == user.id)
 
         result = await self.session.execute(statement)
