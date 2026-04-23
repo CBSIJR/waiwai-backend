@@ -31,7 +31,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['word_id'], ['words.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.add_column('words', sa.Column('status', sa.Enum('PENDING', 'APPROVED', 'REJECTED', 'CHANGES_REQUESTED', name='wordstatus'), nullable=False))
+    op.add_column('words', sa.Column('status', sa.Enum('PENDING', 'APPROVED', 'REJECTED', 'CHANGES_REQUESTED', name='wordstatus'), nullable=False,
+        server_default='APPROVED' ))
+    op.alter_column('words', 'status', server_default=None)
     # ### end Alembic commands ###
 
 
