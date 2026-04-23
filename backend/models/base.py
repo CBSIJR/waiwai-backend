@@ -8,10 +8,25 @@ from sqlalchemy.orm import DeclarativeBase
 # https://stackoverflow.com/questions/75919378/how-to-handle-circular-imports-in-sqlalchemy
 
 
-class PermissionType(enum.Enum):
+class PermissionType(str, enum.Enum):
     GUEST = 'GUEST'
     USER = 'USER'
     ADMIN = 'ADMIN'
+
+
+class WordStatus(enum.Enum):
+    """
+    Máquina de estados para controle de aprovação de palavras.
+
+    Fluxo:
+        - ADMIN cria → direto para APPROVED.
+        - USER cria  → começa em PENDING.
+        - ADMIN revisa → move para APPROVED, REJECTED ou CHANGES_REQUESTED.
+    """
+    PENDING = 'PENDING'
+    APPROVED = 'APPROVED'
+    REJECTED = 'REJECTED'
+    CHANGES_REQUESTED = 'CHANGES_REQUESTED'
 
 
 class Base(AsyncAttrs, DeclarativeBase):

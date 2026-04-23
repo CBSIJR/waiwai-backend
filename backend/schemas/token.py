@@ -1,6 +1,5 @@
-from enum import Enum
-
 from pydantic import BaseModel, EmailStr
+from backend.models.base import PermissionType
 
 
 class Token(BaseModel):
@@ -13,13 +12,7 @@ class TokenData(BaseModel):
     subject: str | None = None
 
 
-class PermissionEnum(str, Enum):
-    admin = 'ADMIN'
-    user = 'USER'
-    guest = 'GUEST'
-
-
 class Subject(BaseModel):
     name: str
     email: EmailStr
-    permission: PermissionEnum
+    permission: PermissionType

@@ -83,6 +83,9 @@ async def get_current_user(
         detail='Não foi possível validar credenciais.',
         headers={'WWW-Authenticate': 'Bearer'},
     )
+    if not credentials:
+        raise credentials_exception
+
     try:
         sub = decode_jwt_sub(credentials.credentials)
         if not sub:
@@ -99,6 +102,18 @@ async def get_current_user(
         raise credentials_exception
 
     return UserAuth(id=user.id, email=user.email, permission=user.permission)
+
+
+async def get_current_user_optional(
+    session: AsyncSession = Depends(get_async_session),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> UserAuth | None:
+    if not credentials:
+        return None
+    try:
+        return await get_current_user(session, credentials)
+    except CustomHTTPException:
+        return None
 
 
 class AuthorizationDependency:

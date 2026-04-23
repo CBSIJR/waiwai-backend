@@ -6,6 +6,7 @@ from sqlalchemy import Row, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import Attachment
+from backend.models.base import WordStatus
 from backend.schemas import (
     AttachmentCreate,
     AttachmentUpdate,
@@ -31,7 +32,15 @@ class Attachments(Repository):
     async def get_list(self, params: ParamsPageQuery, user: Union[None, UserAuth] = None) -> Sequence[Attachment]:
         raise NotImplementedError
 
-    async def create(self, entity: AttachmentCreate) -> Attachment:
+    async def create(self, entity: AttachmentCreate, user: UserAuth) -> Attachment:
+        # Validação de Propriedade: Usuário só adiciona anexo se for dono da palavra ou admin
+        word_db = await self.words.get_by_id(entity.word_id)
+        if word_db.user_id != user.id and user.permission != PermissionType.ADMIN:
+            raise CustomHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Você não tem permissão para adicionar anexos a esta palavra.'
+            )
+            
         if await self.count_by_word_id(entity.word_id) >= 10:
             remove(entity.filedir)
             raise CustomHTTPException(
@@ -50,6 +59,12 @@ class Attachments(Repository):
         )
 
         self.session.add(attachment_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         await self.session.refresh(attachment_db)
         attachment_db.url = '/uploads/' + str(attachment_db.id)
@@ -85,6 +100,13 @@ class Attachments(Repository):
             )
 
         await self.session.delete(attachment_db)
+        
+        # Reset word status to PENDING if user is not admin
+        if user.permission != PermissionType.ADMIN:
+            word_db = await self.words.get_by_id(attachment_db.word_id)
+            word_db.status = WordStatus.PENDING
+            self.session.add(word_db)
+
         await self.session.commit()
         remove(attachment_db.filedir)
 

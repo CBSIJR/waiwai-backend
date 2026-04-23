@@ -41,8 +41,8 @@ async def me_words(
     current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    words = await Words(session).get_list(params, current_user)
-    total = await Words(session).count(params, current_user)
+    words = await Words(session).get_list(params, current_user, only_mine=True)
+    total = await Words(session).count(params, current_user, only_mine=True)
     return BaseResponsePage[WordPublic](data=words, total_items=total)
 
 
@@ -60,8 +60,8 @@ async def me_meanings(
     current_user: UserAuth = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    meanings = await Meanings(session).get_list(params, current_user)
-    total = await Meanings(session).count(params, current_user)
+    meanings = await Meanings(session).get_list(params, current_user, only_mine=True)
+    total = await Meanings(session).count(params, current_user, only_mine=True)
     return BaseResponsePage[MeaningPublic](data=meanings, total_items=total)
 
 

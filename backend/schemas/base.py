@@ -5,18 +5,14 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from typing_extensions import Annotated, Doc
 
+from backend.models.base import PermissionType, WordStatus
+
 T = TypeVar('T')
 
 
 class WordCategoryExport(BaseModel):
     word_id: int
     category_id: int
-
-
-class PermissionType(str, enum.Enum):
-    GUEST = 'GUEST'
-    USER = 'USER'
-    ADMIN = 'ADMIN'
 
 
 class Message(BaseModel):

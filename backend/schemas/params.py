@@ -4,6 +4,7 @@ from fastapi import Query
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core import PydanticCustomError
 import unicodedata
+from backend.models.base import WordStatus
 
 class ParamsQuery(BaseModel):
     q: Optional[str] = Query(None, min_length=1, max_length=50)
@@ -26,6 +27,7 @@ class ParamsPageQuery(Params, ParamsQuery):
 
 class ParamsWordQuery(ParamsPageQuery):
     starts_with: Optional[str] = Query(None, min_length=1, max_length=1)
+    status: Optional[WordStatus] = Query(None)
     
     @field_validator("starts_with")
     def format_starts_with(cls, v):

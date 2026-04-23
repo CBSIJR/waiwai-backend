@@ -11,7 +11,7 @@ else:
     Category = 'Category'
     Attachment = 'Attachment'
 
-from sqlalchemy import String
+from sqlalchemy import String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, PermissionType
@@ -30,6 +30,12 @@ class User(Base):
     )  # TODO: definir tamanho baseado na encriptação
     permission: Mapped[Optional[PermissionType]] = mapped_column(
         default=PermissionType.GUEST
+    )
+    created_at: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    update_at: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     meanings: Mapped[Optional[List[Meaning]]] = relationship(
