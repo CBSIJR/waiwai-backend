@@ -46,15 +46,6 @@ class Settings(BaseSettings):
         alias='JWT_EXPIRATION_REFRESH_TOKEN', default=60 * 24 * 7
     )  # 7 dias
     jwt_algorithm: str = Field(alias='JWT_ALGORITHM', default='HS256')
-    backend_cors_origins: list[str] = Field(
-        alias='BACKEND_CORS_ORIGINS',
-        default=[
-            'http://localhost:3000',
-            'http://localhost:5173',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:5173',
-        ],
-    )
     model_config = SettingsConfigDict(
         env_file=('.env.prod', '.env.dev', '.env'), env_file_encoding='utf-8'
     )
